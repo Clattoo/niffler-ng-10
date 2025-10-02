@@ -7,10 +7,12 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 public class MainPage {
-  private final SelenideElement spendingTable = $("#spendings");
+  private final SelenideElement spendingTable = $("#spendings"),
+          statisticsField = $("#stat");
 
   public MainPage checkThatPageLoaded() {
     spendingTable.should(visible);
+    statisticsField.should(visible);
     return this;
   }
 
