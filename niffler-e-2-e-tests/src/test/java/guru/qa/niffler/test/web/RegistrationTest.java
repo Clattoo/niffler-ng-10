@@ -10,6 +10,7 @@ import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.RegistrationPage;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -41,6 +42,7 @@ public class RegistrationTest {
     }
 
     @Test
+    @DisplayName("Регистрация нового пользователя")
     void shouldRegisterNewUserTest() {
         loginPage.moveToRegistrationPage();
         registrationPage.checkRegistrationElements()
@@ -49,22 +51,7 @@ public class RegistrationTest {
     }
 
     @Test
-    void shouldNotRegisterUserWithExistingUsernameTest() {
-        loginPage.moveToRegistrationPage();
-        registrationPage.checkRegistrationElements()
-                .submitRegistration(existingUsername, password, password)
-                .checkExistingUserErrorMessage(userAlreadyExistsErrorText);
-    }
-
-    @Test
-    void shouldShowErrorIfPasswordAndConfirmPasswordAreNotEqualTest() {
-        loginPage.moveToRegistrationPage();
-        registrationPage.checkRegistrationElements()
-                .submitRegistration(username, password, differentPassword)
-                .checkDifferentPasswordsErrorMessage(differentPasswordsErrorText);
-    }
-
-    @Test
+    @DisplayName("Главная страница должна отображаться после успешного логина")
     void mainPageShouldBeDisplayAfterSuccessLoginTest() {
         loginPage.moveToRegistrationPage();
         registrationPage.checkRegistrationElements()
@@ -75,6 +62,25 @@ public class RegistrationTest {
     }
 
     @Test
+    @DisplayName("Запрет регистрации пользователя под существующим логином")
+    void shouldNotRegisterUserWithExistingUsernameTest() {
+        loginPage.moveToRegistrationPage();
+        registrationPage.checkRegistrationElements()
+                .submitRegistration(existingUsername, password, password)
+                .checkExistingUserErrorMessage(userAlreadyExistsErrorText);
+    }
+
+    @Test
+    @DisplayName("Ошибка при несовпадении паролей во время регистрации нового пользователя")
+    void shouldShowErrorIfPasswordAndConfirmPasswordAreNotEqualTest() {
+        loginPage.moveToRegistrationPage();
+        registrationPage.checkRegistrationElements()
+                .submitRegistration(username, password, differentPassword)
+                .checkDifferentPasswordsErrorMessage(differentPasswordsErrorText);
+    }
+
+    @Test
+    @DisplayName("Пользователь остается на странице логина после попытки входа с неверными данными")
     void userShouldStayOnLoginPageAfterLoginWithBadCredentials() {
         loginPage.moveToRegistrationPage();
         registrationPage.checkRegistrationElements()
