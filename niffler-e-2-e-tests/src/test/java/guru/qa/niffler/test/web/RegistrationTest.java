@@ -1,14 +1,11 @@
 package guru.qa.niffler.test.web;
 
-import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.logevents.SelenideLogger;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.RegistrationPage;
-import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,8 +31,6 @@ public class RegistrationTest {
 
     @BeforeEach
     void setUp() {
-        Configuration.browser = "chrome";
-        SelenideLogger.addListener("AllureSelenide", new AllureSelenide().screenshots(true).savePageSource(true));
         loginPage = Selenide.open(CFG.frontUrl(), LoginPage.class);
         registrationPage = new RegistrationPage();
         mainPage = new MainPage();

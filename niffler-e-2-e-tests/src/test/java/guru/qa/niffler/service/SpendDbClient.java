@@ -102,6 +102,11 @@ public class SpendDbClient implements SpendClient {
   }
 
   @Override
+  public CategoryJson updateCategory(CategoryJson category) {
+    throw new UnsupportedOperationException("Not implemented :(");
+  }
+
+  @Override
   public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
     try {
       final JdbcTemplate jdbcTemplate = new JdbcTemplate(
