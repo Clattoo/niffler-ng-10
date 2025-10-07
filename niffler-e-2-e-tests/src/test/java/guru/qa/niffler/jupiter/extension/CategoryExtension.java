@@ -14,7 +14,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
     private final SpendClient spendClient = new SpendApiClient();
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
+    public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(
                 context.getRequiredTestMethod(),
                 Category.class
@@ -55,7 +55,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
     }
 
     @Override
-    public void afterTestExecution(ExtensionContext context) throws Exception {
+    public void afterTestExecution(ExtensionContext context) {
         CategoryJson category = context.getStore(NAMESPACE)
                 .get(context.getUniqueId(), CategoryJson.class);
         category = spendClient

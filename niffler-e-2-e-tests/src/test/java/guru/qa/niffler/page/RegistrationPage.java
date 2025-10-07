@@ -1,6 +1,5 @@
 package guru.qa.niffler.page;
 
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
@@ -58,7 +57,6 @@ public class RegistrationPage {
                 .setPassword(password)
                 .setPasswordSubmit(confirmPassword)
                 .proceedRegistration();
-
         return this;
     }
 
@@ -86,7 +84,6 @@ public class RegistrationPage {
     @Step("Finish registration and click 'Sign In' button")
     public RegistrationPage finishNewUserRegistration() {
         successSighInBtn.click();
-        Selenide.sleep(5000);
         return this;
     }
 

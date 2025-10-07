@@ -21,13 +21,13 @@ public class RegistrationTest {
     private LoginPage loginPage;
     private MainPage mainPage;
     private RegistrationPage registrationPage;
-    String existingUsername = "test";
-    String username = getRandomUserName();
-    String password = getRandomPassword();
-    String differentPassword = getRandomPassword();
-    String differentPasswordsErrorText = "Passwords should be equal";
-    String userAlreadyExistsErrorText = "Username `" + existingUsername + "` already exists";
-    String loginWithIncorrectCredentialsErrorText = "Неверные учетные данные пользователя";
+    private String existingUsername = "test";
+    private String username = getRandomUserName();
+    private String password = getRandomPassword();
+    private String differentPassword = getRandomPassword();
+    private String differentPasswordsErrorText = "Passwords should be equal";
+    private String userAlreadyExistsErrorText = "Username `" + existingUsername + "` already exists";
+    private String loginWithIncorrectCredentialsErrorText = "Неверные учетные данные пользователя";
 
     @BeforeEach
     void setUp() {
@@ -82,6 +82,6 @@ public class RegistrationTest {
                 .submitRegistration(username, password, password)
                 .finishNewUserRegistration();
         loginPage.login(username, differentPassword);
-        loginPage.checkErrorMessageWithIncorrectCredentials(loginWithIncorrectCredentialsErrorText);
+        loginPage.checkErrorMessage(loginWithIncorrectCredentialsErrorText);
     }
 }

@@ -26,7 +26,7 @@ public class LoginPage {
     return new RegistrationPage();
   }
 
-  public LoginPage checkErrorMessageWithIncorrectCredentials(String errorMessage) {
+  public LoginPage checkErrorMessage(String errorMessage) {
     errorMessageContainer.shouldHave(text(errorMessage));
     return this;
   }

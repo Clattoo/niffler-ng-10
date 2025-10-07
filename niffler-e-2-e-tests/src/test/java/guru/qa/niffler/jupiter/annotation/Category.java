@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @ExtendWith(CategoryExtension.class)
 
 public @interface Category {
-    String name() default "TestCategory";
+    String name();
 
     String username();
 
