@@ -15,6 +15,7 @@ public class CategoryTest {
     private static final Config CFG = Config.getInstance();
 
     @Category(
+            name = "Test1",
             username = "Clatto",
             archived = false
     )
@@ -30,6 +31,7 @@ public class CategoryTest {
     }
 
     @Category(
+            name = "Test2",
             username = "Clatto",
             archived = true
     )

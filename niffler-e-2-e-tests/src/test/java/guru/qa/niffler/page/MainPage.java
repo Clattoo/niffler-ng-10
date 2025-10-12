@@ -9,8 +9,8 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
 public class MainPage {
-    private final ElementsCollection tableRows = $$("#spendings tr");
-    private final SelenideElement spendingTable = $("#spendings"),
+    public final ElementsCollection tableRows = $$("#spendings tr");
+    public final SelenideElement spendingTable = $("#spendings"),
             statisticsField = $("#stat"),
             personIcon = $("[data-testid='PersonIcon']"),
             profileLink = $("a[href='/profile']"),
@@ -37,5 +37,11 @@ public class MainPage {
         personIcon.click();
         profileLink.click();
         return new ProfilePage();
+    }
+
+    public FriendsPage openListOfFriends() {
+        personIcon.click();
+        friendsLink.click();
+        return new FriendsPage();
     }
 }
