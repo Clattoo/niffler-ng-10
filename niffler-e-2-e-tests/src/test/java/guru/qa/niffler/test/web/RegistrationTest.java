@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static guru.qa.niffler.utils.RandomDataUtils.getRandomPassword;
-import static guru.qa.niffler.utils.RandomDataUtils.getRandomUserName;
+import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
 @ExtendWith(BrowserExtension.class)
 public class RegistrationTest {
@@ -22,7 +22,7 @@ public class RegistrationTest {
     private MainPage mainPage;
     private RegistrationPage registrationPage;
     private String existingUsername = "test";
-    private String username = getRandomUserName();
+    private String username = randomUsername();
     private String password = getRandomPassword();
     private String differentPassword = getRandomPassword();
     private String differentPasswordsErrorText = "Passwords should be equal";

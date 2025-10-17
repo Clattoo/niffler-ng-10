@@ -1,13 +1,13 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Category;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.service.SpendApiClient;
 import guru.qa.niffler.service.SpendClient;
+import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
-
-import java.util.Random;
 
 public class CategoryExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CategoryExtension.class);
@@ -15,32 +15,32 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        AnnotationSupport.findAnnotation(
-                context.getRequiredTestMethod(),
-                Category.class
-        ).ifPresent(
-                anno -> {
-                    CategoryJson created = spendClient.createCategory(
-                            new CategoryJson(
-                                    null,
-                                    anno.name() + new Random().nextInt(1000, 10000),
-                                    anno.username(),
-                                    false
-                            )
-                    );
-                    if (anno.archived()) created = spendClient.updateCategory(
-                            new CategoryJson(
-                                    created.id(),
-                                    created.name(),
-                                    created.username(),
-                                    true
-                            ));
-                    context.getStore(NAMESPACE).put(
-                            context.getUniqueId(),
-                            created
-                    );
-                }
-        );
+        AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
+                .ifPresent(anno -> {
+                    Category[] annotationCategories = anno.categories();
+                    if (annotationCategories.length != 0) {
+                        Category annotationCategory = annotationCategories[0];
+                        CategoryJson created = spendClient.createCategory(
+                                new CategoryJson(
+                                        null,
+                                        RandomDataUtils.randomCategoryName(),
+                                        anno.username(),
+                                        false
+                                )
+                        );
+                        if (annotationCategory.archived()) {
+                            created = spendClient.updateCategory(
+                                    new CategoryJson(
+                                            created.id(),
+                                            created.name(),
+                                            created.username(),
+                                            true
+                                    )
+                            );
+                        }
+                        context.getStore(NAMESPACE).put(context.getUniqueId(), created);
+                    }
+                });
     }
 
     @Override
@@ -58,15 +58,19 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
     public void afterTestExecution(ExtensionContext context) {
         CategoryJson category = context.getStore(NAMESPACE)
                 .get(context.getUniqueId(), CategoryJson.class);
-        category = spendClient
-                .findCategoryByNameAndUsername(category.name(), category.username()).orElseThrow();
-        if (!category.archived())
-            spendClient.updateCategory(
-                    new CategoryJson(
-                            category.id(),
-                            category.name(),
-                            category.username(),
-                            true
-                    ));
+        if (category != null) {
+            category = spendClient
+                    .findCategoryByNameAndUsername(category.name(), category.username()).orElseThrow();
+            if (!category.archived()) {
+                spendClient.updateCategory(
+                        new CategoryJson(
+                                category.id(),
+                                category.name(),
+                                category.username(),
+                                true
+                        )
+                );
+            }
+        }
     }
 }
