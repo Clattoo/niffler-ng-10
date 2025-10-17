@@ -58,7 +58,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
     public void afterTestExecution(ExtensionContext context) {
         CategoryJson category = context.getStore(NAMESPACE)
                 .get(context.getUniqueId(), CategoryJson.class);
-        if (category != null) { // 🔹 Добавлена проверка, если категорий не было
+        if (category != null) {
             category = spendClient
                     .findCategoryByNameAndUsername(category.name(), category.username()).orElseThrow();
             if (!category.archived()) {
