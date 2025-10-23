@@ -98,12 +98,7 @@ public class SpendDaoJdbc implements SpendDao {
         try (Connection connection = Databases.connection(CFG.spendJdbcUrl());
              PreparedStatement ps = connection.prepareStatement("""
                          SELECT
-                             s.id             AS spend_id,
-                             s.username       AS spend_username,
-                             s.spend_date     AS spend_date,
-                             s.currency       AS currency,
-                             s.amount         AS amount,
-                             s.description    AS description,
+                             s.*,
                              c.id             AS cat_id,
                              c.name           AS cat_name,
                              c.username       AS cat_username,
@@ -120,8 +115,8 @@ public class SpendDaoJdbc implements SpendDao {
             try (ResultSet rs = ps.getResultSet()) {
                 while (rs.next()) {
                     SpendEntity se = new SpendEntity();
-                    se.setId(rs.getObject("spend_id", UUID.class));
-                    se.setUsername(rs.getString("spend_username"));
+                    se.setId(rs.getObject("id", UUID.class));
+                    se.setUsername(rs.getString("username"));
                     se.setSpendDate(rs.getDate("spend_date"));
                     se.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
                     se.setAmount(rs.getDouble("amount"));
