@@ -15,9 +15,14 @@ public class CategoryDaoJdbc implements CategoryDao {
 
     private static final Config CFG = Config.getInstance();
 
+    private final Connection connection;
+
+    public CategoryDaoJdbc(Connection connection) {
+        this.connection = connection;
+    }
+
     @Override
     public CategoryEntity create(CategoryEntity category) {
-        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
             try (PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO category (username, name, archived) " +
                             "VALUES (?, ?, ?)",
@@ -39,7 +44,6 @@ public class CategoryDaoJdbc implements CategoryDao {
                 }
                 category.setId(generatedKey);
                 return category;
-            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
