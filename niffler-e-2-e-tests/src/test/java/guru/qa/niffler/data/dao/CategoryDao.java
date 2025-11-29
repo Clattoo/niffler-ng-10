@@ -1,7 +1,6 @@
 package guru.qa.niffler.data.dao;
 
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
-import guru.qa.niffler.model.CategoryJson;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,5 +18,5 @@ public interface CategoryDao {
 
     void delete(CategoryEntity category);
 
-    CategoryJson update(CategoryJson categoryJson);
+    List<CategoryEntity> findAll();
 }
