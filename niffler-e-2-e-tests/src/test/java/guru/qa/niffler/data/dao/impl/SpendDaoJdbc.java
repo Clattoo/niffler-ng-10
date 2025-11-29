@@ -91,22 +91,20 @@ public class SpendDaoJdbc implements SpendDao {
                 "SELECT * FROM spend WHERE username = ?"
         )) {
             ps.setString(1, username);
-
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    while (rs.next()) {
-                        SpendEntity se = new SpendEntity();
-                        se.setId(rs.getObject("id", UUID.class));
-                        se.setUsername(rs.getString("username"));
-                        se.setSpendDate(rs.getDate("spend_date"));
-                        se.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-                        se.setAmount(rs.getDouble("amount"));
-                        se.setDescription("description");
-                        se.setCategory(rs.getObject("category_id", CategoryEntity.class));
-                        entityList.add(se);
-                    }
-                } else {
-                    throw new SQLException("Can't find spend in ResultSet");
+                while (rs.next()) {
+                    SpendEntity se = new SpendEntity();
+                    se.setId(rs.getObject("id", UUID.class));
+                    se.setUsername(rs.getString("username"));
+                    se.setSpendDate(rs.getDate("spend_date"));
+                    se.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+                    se.setAmount(rs.getDouble("amount"));
+                    se.setDescription(rs.getString("description"));
+                    UUID categoryId = rs.getObject("category_id", UUID.class);
+                    CategoryEntity category = new CategoryEntity();
+                    category.setId(categoryId);
+                    se.setCategory(category);
+                    entityList.add(se);
                 }
             }
         } catch (SQLException e) {

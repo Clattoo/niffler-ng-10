@@ -81,15 +81,14 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM \"user\" WHERE username = ?"
         )) {
-            ps.setObject(1, username); //TODO  string по идее
+            ps.setObject(1, username);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UserEntity ue = new UserEntity();
                     ue.setId(rs.getObject("id", UUID.class));
                     ue.setUsername(rs.getString("username"));
-                    String currencyString = rs.getString("currency");
-                    ue.setCurrency(CurrencyValues.valueOf(currencyString));
+                    ue.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
                     ue.setFirstname(rs.getString("firstname"));
                     ue.setSurname(rs.getString("surname"));
                     ue.setFullname(rs.getString("fullname"));
