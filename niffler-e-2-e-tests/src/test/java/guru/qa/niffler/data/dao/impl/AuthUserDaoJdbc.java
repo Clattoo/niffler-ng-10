@@ -47,11 +47,6 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     @Override
-    public AuthUserEntity update(AuthUserEntity user) {
-        throw new UnsupportedOperationException("Not implemented :(");
-    }
-
-    @Override
     public Optional<AuthUserEntity> findByUsername(String username) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM \"user\" WHERE username = ?"
@@ -75,11 +70,6 @@ public class AuthUserDaoJdbc implements AuthUserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public Optional<AuthUserEntity> findById(UUID id) {
-        throw new UnsupportedOperationException("Not implemented :(");
     }
 
     @Override
