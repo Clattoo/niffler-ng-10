@@ -1,7 +1,7 @@
 package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.dao.UserdataUserDao;
+import guru.qa.niffler.data.dao.UserDao;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
 import guru.qa.niffler.data.tpl.DataSources;
@@ -14,27 +14,29 @@ import java.sql.Statement;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
+public class UserDaoSpringJdbc implements UserDao {
 
     private static final Config CFG = Config.getInstance();
 
     @Override
-    public UserEntity create(UserEntity user) {
+    public UserEntity createUser(UserEntity user) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         KeyHolder keyHolder = new GeneratedKeyHolder();
         template.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO \"user\" (username, currency, firstname, surname, photo, photo_small, full_name) " +
-                            "VALUES (?,?,?,?,?,?,?)",
+                    """
+                            INSERT INTO "user" (username, currency, firstname, surname, full_name, photo, photo_small)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                            """,
                     Statement.RETURN_GENERATED_KEYS
             );
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getCurrency().name());
             statement.setString(3, user.getFirstname());
             statement.setString(4, user.getSurname());
-            statement.setBytes(5, user.getPhoto());
-            statement.setBytes(6, user.getPhotoSmall());
-            statement.setString(7, user.getFullname());
+            statement.setString(5, user.getFullname());
+            statement.setBytes(6, user.getPhoto());
+            statement.setBytes(7, user.getPhotoSmall());
             return statement;
         }, keyHolder);
 
