@@ -47,7 +47,7 @@ public class UserDbClient implements UserClient {
                     AuthorityEntity[] userAuthorities = Arrays.stream(Authority.values()).map(
                             e -> {
                                 AuthorityEntity ae = new AuthorityEntity();
-                                ae.setUserId(createdAuthUser.getId());
+                                ae.setUser(createdAuthUser.getId());
                                 ae.setAuthority(e);
                                 return ae;
                             }

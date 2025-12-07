@@ -41,11 +41,11 @@ public class ChainedTransactionTest {
                     AuthUserEntity createdAuthUser = new AuthUserDaoJdbc().create(authUser);
 
                     AuthorityEntity readAuth = new AuthorityEntity();
-                    readAuth.setUserId(createdAuthUser.getId());
+                    readAuth.setUser(createdAuthUser);
                     readAuth.setAuthority(Authority.read);
 
                     AuthorityEntity writeAuth = new AuthorityEntity();
-                    writeAuth.setUserId(createdAuthUser.getId());
+                    writeAuth.setUser(createdAuthUser);
                     writeAuth.setAuthority(Authority.write);
 
                     new AuthAuthorityDaoJdbc().create(readAuth, writeAuth);

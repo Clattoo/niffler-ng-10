@@ -2,6 +2,7 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
+import guru.qa.niffler.data.entity.AuthUserEntity;
 import guru.qa.niffler.data.entity.Authority;
 import guru.qa.niffler.data.entity.AuthorityEntity;
 
@@ -27,7 +28,7 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                 PreparedStatement.RETURN_GENERATED_KEYS
         )) {
             for (AuthorityEntity authority : authorities) {
-                ps.setObject(1, authority.getUserId());
+                ps.setObject(1, authority.getUser().getId());
                 ps.setString(2, authority.getAuthority().name());
                 ps.addBatch();
                 ps.clearParameters();
@@ -49,7 +50,8 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                 while (rs.next()) {
                     AuthorityEntity ae = new AuthorityEntity();
                     ae.setId(rs.getObject("id", UUID.class));
-                    ae.setUserId(rs.getObject("user_id", UUID.class));
+                    AuthUserEntity user = new AuthUserEntity();
+                    user.setId(rs.getObject("user_id", UUID.class));
                     ae.setAuthority(Authority.valueOf(rs.getString("authority")));
                     authorities.add(ae);
                 }
@@ -70,7 +72,8 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
                 if (rs.next()) {
                     AuthorityEntity ae = new AuthorityEntity();
                     ae.setId(rs.getObject("id", UUID.class));
-                    ae.setUserId(rs.getObject("user_id", UUID.class));
+                    AuthUserEntity user = new AuthUserEntity();
+                    user.setId(rs.getObject("user_id", UUID.class));
                     ae.setAuthority(Authority.valueOf(rs.getString("authority")));
                     return Optional.of(ae);
                 } else {
