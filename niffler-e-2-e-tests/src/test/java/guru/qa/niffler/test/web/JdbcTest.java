@@ -8,7 +8,7 @@ import guru.qa.niffler.service.SpendDbClient;
 import guru.qa.niffler.service.UserDbClient;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Date;
 
 public class JdbcTest {
 
@@ -21,13 +21,13 @@ public class JdbcTest {
                         new Date(),
                         new CategoryJson(
                                 null,
-                                "test-4.2",
+                                "test-5.2",
                                 "Clatto",
                                 false
                         ),
                         CurrencyValues.RUB,
-                        1000.0,
-                        "4.2-new-method",
+                        10000.0,
+                        "5.2-test",
                         "Clatto"
                 )
         );
@@ -40,7 +40,7 @@ public class JdbcTest {
         UserJson user = userDbClient.createUser(
                 new UserJson(
                         null,
-                        "Clatto_Test",
+                        "Clatto_Test_2",
                         "Matthew",
                         "Dyson",
                         "Matthew Dyson",
@@ -58,7 +58,7 @@ public class JdbcTest {
         UserJson user = dbClient.createUser(
                 new UserJson(
                         null,
-                        "Create_Test_User2",
+                        "Jdbc_1",
                         "Petr",
                         "Petrovich",
                         "test",
