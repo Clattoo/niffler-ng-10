@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.entity;
 
-import guru.qa.niffler.data.entity.userdata.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +25,7 @@ public class AuthorityEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private AuthUserEntity user;
 
     @Override
     public final boolean equals(Object o) {

@@ -10,10 +10,8 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static jakarta.persistence.FetchType.EAGER;
 
@@ -52,16 +50,61 @@ public class UserEntity implements Serializable {
     @OneToMany(fetch = EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     private List<AuthorityEntity> authorities = new ArrayList<>();
 
-    public void addAuthorities(AuthorityEntity... authorities) {
-        for (AuthorityEntity authority : authorities) {
-            this.authorities.add(authority);
-            authority.setUser(this);
+    @OneToMany(mappedBy = "requester", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendshipEntity> friendshipRequests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "addressee", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendshipEntity> friendshipAddressees = new ArrayList<>();
+
+    @OneToMany(fetch = EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+    private List<PushTokenEntity> pushTokens = new ArrayList<>();
+
+    public void addFriends(FriendshipStatus status, UserEntity... friends) {
+        List<FriendshipEntity> friendsEntities = Stream.of(friends)
+                .map(f -> {
+                    FriendshipEntity fe = new FriendshipEntity();
+                    fe.setRequester(this);
+                    fe.setAddressee(f);
+                    fe.setStatus(status);
+                    fe.setCreatedDate(new Date());
+                    return fe;
+                }).toList();
+        this.friendshipRequests.addAll(friendsEntities);
+    }
+
+    public void addInvitations(UserEntity... invitations) {
+        List<FriendshipEntity> invitationsEntities = Stream.of(invitations)
+                .map(i -> {
+                    FriendshipEntity fe = new FriendshipEntity();
+                    fe.setRequester(i);
+                    fe.setAddressee(this);
+                    fe.setStatus(FriendshipStatus.PENDING);
+                    fe.setCreatedDate(new Date());
+                    return fe;
+                }).toList();
+        this.friendshipAddressees.addAll(invitationsEntities);
+    }
+
+    public void removeFriends(UserEntity... friends) {
+        List<UUID> idsToBeRemoved = Arrays.stream(friends).map(UserEntity::getId).toList();
+        for (Iterator<FriendshipEntity> i = getFriendshipRequests().iterator(); i.hasNext(); ) {
+            FriendshipEntity friendsEntity = i.next();
+            if (idsToBeRemoved.contains(friendsEntity.getAddressee().getId())) {
+                friendsEntity.setAddressee(null);
+                i.remove();
+            }
         }
     }
 
-    public void removeAuthority(AuthorityEntity authority) {
-        this.authorities.remove(authority);
-        authority.setUser(null);
+    public void removeInvites(UserEntity... invitations) {
+        List<UUID> idsToBeRemoved = Arrays.stream(invitations).map(UserEntity::getId).toList();
+        for (Iterator<FriendshipEntity> i = getFriendshipAddressees().iterator(); i.hasNext(); ) {
+            FriendshipEntity friendsEntity = i.next();
+            if (idsToBeRemoved.contains(friendsEntity.getRequester().getId())) {
+                friendsEntity.setRequester(null);
+                i.remove();
+            }
+        }
     }
 
     @Override
