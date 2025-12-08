@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FriendshipEntityRowMapper implements RowMapper<FriendshipEntity> {
@@ -23,7 +24,9 @@ public class FriendshipEntityRowMapper implements RowMapper<FriendshipEntity> {
         UserEntity addressee = new UserEntity();
         UUID requesterId = rs.getObject("requester_id", UUID.class);
         UUID addresseeId = rs.getObject("addressee_id", UUID.class);
-        FriendshipStatus status = FriendshipStatus.valueOf(rs.getString("status"));
+        FriendshipStatus status = Optional.ofNullable(rs.getString("status"))
+                .map(FriendshipStatus::valueOf)
+                .orElse(null);
         if (requesterId != null) {
             requester.setId(requesterId);
             friendship.setRequester(requester);

@@ -58,12 +58,13 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
     @Override
     public Optional<UserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" u " +
-                        "JOIN friendship fr " +
-                        "ON u.id = fr.requester_id " +
-                        "JOIN friendship fa " +
-                        "ON u.id = fa.addressee_id " +
-                        "WHERE u.id = ?"
+                "SELECT u.*, " +
+                        "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                        "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                        "FROM \"user\" u " +
+                        "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                        "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
+                        "WHERE u.username = ?"
         )) {
             ps.setObject(1, id);
             ps.execute();
@@ -82,11 +83,12 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
     @Override
     public Optional<UserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" u " +
-                        "JOIN friendship fr " +
-                        "ON u.id = fr.requester_id " +
-                        "JOIN friendship fa " +
-                        "ON u.id = fa.addressee_id " +
+                "SELECT u.*, " +
+                        "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                        "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                        "FROM \"user\" u " +
+                        "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                        "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
                         "WHERE u.username = ?"
         )) {
             ps.setObject(1, username);
@@ -129,17 +131,17 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
     }
 
     @Override
-    public void AddIncomeInvitation(UserEntity requester, UserEntity addressee) {
+    public void addIncomeInvitation(UserEntity requester, UserEntity addressee) {
         createFriendshipWithStatus(requester, addressee, FriendshipStatus.PENDING);
     }
 
     @Override
-    public void AddOutcomeInvitation(UserEntity requester, UserEntity addressee) {
+    public void addOutcomeInvitation(UserEntity requester, UserEntity addressee) {
         createFriendshipWithStatus(requester, addressee, FriendshipStatus.PENDING);
     }
 
     @Override
-    public void AddFriend(UserEntity requester, UserEntity addressee) {
+    public void addFriend(UserEntity requester, UserEntity addressee) {
         createFriendshipWithStatus(requester, addressee, FriendshipStatus.ACCEPTED);
         createFriendshipWithStatus(addressee, requester, FriendshipStatus.ACCEPTED);
     }
@@ -156,7 +158,7 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
                 try {
                     result.setId(rs.getObject("id", UUID.class));
                     result.setUsername(rs.getString("username"));
-                    result.setCurrency(CurrencyValues.valueOf(rs.getString("u.currency")));
+                    result.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
                     result.setFirstname(rs.getString("firstname"));
                     result.setSurname(rs.getString("surname"));
                     result.setFullname(rs.getString("full_name"));

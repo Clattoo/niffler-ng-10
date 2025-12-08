@@ -36,6 +36,17 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
 
         final UUID generatedKey = (UUID) Objects.requireNonNull(kh.getKeys()).get("id");
         user.setId(generatedKey);
+
+        jdbcTemplate.batchUpdate(
+                "INSERT INTO authority (user_id, authority) VALUES (?, ?)",
+                user.getAuthorities(),
+                user.getAuthorities().size(),
+                (ps, authority) -> {
+                    ps.setObject(1, generatedKey);
+                    ps.setString(2, authority.getAuthority().name());
+                }
+        );
+
         return user;
     }
 

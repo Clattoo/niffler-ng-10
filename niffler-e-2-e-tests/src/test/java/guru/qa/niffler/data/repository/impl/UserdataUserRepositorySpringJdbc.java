@@ -49,12 +49,13 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return Optional.ofNullable(
                 jdbcTemplate.query(
-                        "SELECT * FROM \"user\" u " +
-                                "JOIN friendship fr " +
-                                "ON u.id = fr.requester_id " +
-                                "JOIN friendship fa " +
-                                "ON u.id = fa.addressee_id " +
-                                "WHERE u.id = ?",
+                        "SELECT u.*, " +
+                                "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                                "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                                "FROM \"user\" u " +
+                                "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                                "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
+                                "WHERE u.username = ?",
                         UserdataUserSetExtractor.instance,
                         id));
     }
@@ -64,11 +65,12 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return Optional.ofNullable(
                 jdbcTemplate.query(
-                        "SELECT * FROM \"user\" u " +
-                                "JOIN friendship fr " +
-                                "ON u.id = fr.requester_id " +
-                                "JOIN friendship fa " +
-                                "ON u.id = fa.addressee_id " +
+                        "SELECT u.*, " +
+                                "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                                "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                                "FROM \"user\" u " +
+                                "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                                "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
                                 "WHERE u.username = ?",
                         UserdataUserSetExtractor.instance,
                         username));
@@ -100,17 +102,17 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository 
     }
 
     @Override
-    public void AddIncomeInvitation(UserEntity requester, UserEntity addressee) {
+    public void addIncomeInvitation(UserEntity requester, UserEntity addressee) {
         createFriendshipWithStatus(requester, addressee, FriendshipStatus.PENDING);
     }
 
     @Override
-    public void AddOutcomeInvitation(UserEntity requester, UserEntity addressee) {
+    public void addOutcomeInvitation(UserEntity requester, UserEntity addressee) {
         createFriendshipWithStatus(requester, addressee, FriendshipStatus.PENDING);
     }
 
     @Override
-    public void AddFriend(UserEntity requester, UserEntity addressee) {
+    public void addFriend(UserEntity requester, UserEntity addressee) {
         createFriendshipWithStatus(requester, addressee, FriendshipStatus.ACCEPTED);
         createFriendshipWithStatus(addressee, requester, FriendshipStatus.ACCEPTED);
     }
