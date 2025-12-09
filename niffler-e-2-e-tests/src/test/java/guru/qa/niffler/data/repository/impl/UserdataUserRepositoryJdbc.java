@@ -64,7 +64,7 @@ public class UserdataUserRepositoryJdbc implements UserdataUserRepository {
                         "FROM \"user\" u " +
                         "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
                         "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
-                        "WHERE u.username = ?"
+                        "WHERE u.id = ?"
         )) {
             ps.setObject(1, id);
             ps.execute();
