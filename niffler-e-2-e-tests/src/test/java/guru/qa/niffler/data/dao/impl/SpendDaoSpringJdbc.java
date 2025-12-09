@@ -27,7 +27,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO spend (username, spend_date, currency, amount, description, category_id)" + "VALUES(?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, spend.getUsername());
-            ps.setDate(2, spend.getSpendDate());
+            ps.setDate(2, new java.sql.Date(spend.getSpendDate().getTime()));
             ps.setString(3, spend.getCurrency().name());
             ps.setDouble(4, spend.getAmount());
             ps.setString(5, spend.getDescription());

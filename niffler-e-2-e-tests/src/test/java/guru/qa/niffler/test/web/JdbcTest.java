@@ -21,7 +21,7 @@ public class JdbcTest {
                         new Date(),
                         new CategoryJson(
                                 null,
-                                "test-5.2",
+                                "test-6.1",
                                 "Clatto",
                                 false
                         ),
