@@ -6,6 +6,8 @@ import guru.qa.niffler.data.entity.Authority;
 import guru.qa.niffler.data.entity.AuthorityEntity;
 import guru.qa.niffler.data.mapper.AuthUserEntityRowMapper;
 import guru.qa.niffler.data.repository.AuthUserRepository;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,6 +23,7 @@ import static guru.qa.niffler.data.tpl.Connections.holder;
 public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
     private static final Config CFG = Config.getInstance();
+    private static final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
@@ -66,9 +69,39 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
+    public AuthUserEntity update(AuthUserEntity user) {
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                "UPDATE \"user\" " +
+                        "SET username = ?, " +
+                        "password = ?, " +
+                        "enabled = ?, " +
+                        "account_non_expired = ?, " +
+                        "account_non_locked = ?, " +
+                        "credentials_non_expired = ? " +
+                        "WHERE id = ?"
+        )) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, pe.encode(user.getPassword()));
+            ps.setBoolean(3, user.getEnabled());
+            ps.setBoolean(4, user.getAccountNonExpired());
+            ps.setBoolean(5, user.getAccountNonLocked());
+            ps.setBoolean(6, user.getCredentialsNonExpired());
+            ps.setObject(7, user.getId());
+
+            int updatedRows = ps.executeUpdate();
+            if (updatedRows == 0) {
+                throw new SQLException("User not found with id: " + user.getId());
+            }
+            return user;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public Optional<AuthUserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" u JOIN authority a on u.id = a.user_id WHERE u.username = ?"
+                "SELECT u.*, a.id AS authority_id, a.user_id, a.authority FROM \"user\" u JOIN authority a on u.id = a.user_id WHERE u.username = ?"
         )) {
             ps.setString(1, username);
 
@@ -84,7 +117,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
                     AuthorityEntity ae = new AuthorityEntity();
                     ae.setUser(user);
-                    ae.setId(rs.getObject("a.id", UUID.class));
+                    ae.setId(rs.getObject("authority_id", UUID.class));
                     ae.setAuthority(Authority.valueOf(rs.getString("authority")));
                     authorityEntities.add(ae);
                 }
@@ -103,7 +136,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     @Override
     public Optional<AuthUserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" u JOIN authority a on u.id = a.user_id WHERE u.id = ?"
+                "SELECT u.*, a.id AS authority_id, a.user_id, a.authority FROM \"user\" u JOIN authority a on u.id = a.user_id WHERE u.id = ?"
         )) {
             ps.setObject(1, id);
 
@@ -119,7 +152,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
                     AuthorityEntity ae = new AuthorityEntity();
                     ae.setUser(user);
-                    ae.setId(rs.getObject("a.id", UUID.class));
+                    ae.setId(rs.getObject("authority_id", UUID.class));
                     ae.setAuthority(Authority.valueOf(rs.getString("authority")));
                     authorityEntities.add(ae);
                 }
@@ -137,11 +170,19 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
     @Override
     public void delete(AuthUserEntity user) {
-        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-                "DELETE FROM \"user\" WHERE id = ?"
-        )) {
-            ps.setObject(1, user.getId());
-            ps.execute();
+        try {
+            try (PreparedStatement ps1 = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                    "DELETE FROM authority WHERE user_id = ?"
+            )) {
+                ps1.setObject(1, user.getId());
+                ps1.executeUpdate();
+            }
+            try (PreparedStatement ps2 = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                    "DELETE FROM \"user\" WHERE id = ?"
+            )) {
+                ps2.setObject(1, user.getId());
+                ps2.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

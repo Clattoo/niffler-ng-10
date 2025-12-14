@@ -51,6 +51,29 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
     }
 
     @Override
+    public AuthUserEntity update(AuthUserEntity user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        jdbcTemplate.update(
+                "UPDATE \"user\" " +
+                        "SET username = ?, " +
+                        "password = ?, " +
+                        "enabled = ?, " +
+                        "account_non_expired = ?, " +
+                        "account_non_locked = ?, " +
+                        "credentials_non_expired = ? " +
+                        "WHERE id = ?",
+                user.getUsername(),
+                user.getPassword(),
+                user.getEnabled(),
+                user.getAccountNonExpired(),
+                user.getAccountNonLocked(),
+                user.getCredentialsNonExpired(),
+                user.getId()
+        );
+        return user;
+    }
+
+    @Override
     public Optional<AuthUserEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         return Optional.ofNullable(
@@ -94,7 +117,11 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
     public void delete(AuthUserEntity user) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         template.update(
-                "DELETE FROM authority WHERE id = ?",
+                "DELETE FROM authority WHERE user_id = ?",
+                user.getId()
+        );
+        template.update(
+                "DELETE FROM \"user\" WHERE id = ?",
                 user.getId()
         );
     }

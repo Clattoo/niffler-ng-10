@@ -8,9 +8,12 @@ import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class AuthUserDaoSpringJdbc implements AuthUserDao {
 
     private static final Config CFG = Config.getInstance();
+    private static final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
@@ -37,6 +41,54 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
         final UUID generatedKey = (UUID) Objects.requireNonNull(kh.getKeys()).get("id");
         user.setId(generatedKey);
         return user;
+    }
+
+    @Override
+    public AuthUserEntity updateUser(AuthUserEntity user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        int userId = jdbcTemplate.update(
+                "UPDATE \"user\" SET " +
+                        "username = ?, " +
+                        "account_non_expired = ?, " +
+                        "account_non_locked = ?, " +
+                        "credentials_non_expired = ?, " +
+                        "enabled = ?, " +
+                        "password = ? " +
+                        "WHERE id = ?",
+                user.getUsername(),
+                user.getAccountNonExpired(),
+                user.getAccountNonLocked(),
+                user.getCredentialsNonExpired(),
+                user.getEnabled(),
+                passwordEncoder.encode(user.getPassword()),
+                user.getId()
+        );
+
+        if (userId == 0) {
+            throw new IllegalStateException("Can't find user by id: " + user.getId());
+        }
+
+        return findById(user.getId())
+                .orElseThrow(() -> new IllegalStateException("Can't find updated user by id: " + user.getId()));
+    }
+
+    @Override
+    public Optional<AuthUserEntity> findById(UUID id) {
+        JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        return template.query(
+                "SELECT * FROM \"user\" WHERE id = ?",
+                AuthUserEntityRowMapper.instance,
+                id
+        ).stream().findFirst();
+    }
+
+    @Override
+    public List<AuthUserEntity> findAll() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        return jdbcTemplate.query(
+                "SELECT * FROM \"user\"",
+                AuthUserEntityRowMapper.instance
+        );
     }
 
     @Override

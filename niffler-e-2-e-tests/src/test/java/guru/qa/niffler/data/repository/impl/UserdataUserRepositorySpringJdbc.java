@@ -1,17 +1,20 @@
 package guru.qa.niffler.data.repository.impl;
 
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.data.dao.UserdataUserDao;
+import guru.qa.niffler.data.dao.impl.UserdataUserDaoSpringJdbc;
 import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.mapper.UserdataUserSetExtractor;
 import guru.qa.niffler.data.repository.UserdataUserRepository;
 import guru.qa.niffler.data.tpl.DataSources;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,29 +22,16 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository 
 
     private static final Config CFG = Config.getInstance();
 
+    private final UserdataUserDao userdataUserDao = new UserdataUserDaoSpringJdbc();
+
     @Override
     public UserEntity create(UserEntity user) {
-        JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        template.update(connection -> {
-            PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO \"user\" (username, currency, firstname, surname, photo, photo_small, full_name) " +
-                            "VALUES (?,?,?,?,?,?,?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getCurrency().name());
-            statement.setString(3, user.getFirstname());
-            statement.setString(4, user.getSurname());
-            statement.setBytes(5, user.getPhoto());
-            statement.setBytes(6, user.getPhotoSmall());
-            statement.setString(7, user.getFullname());
-            return statement;
-        }, keyHolder);
+        return userdataUserDao.create(user);
+    }
 
-        final UUID generatedKey = (UUID) keyHolder.getKeys().get("id");
-        user.setId(generatedKey);
-        return user;
+    @Override
+    public UserEntity update(UserEntity user) {
+        return userdataUserDao.update(user);
     }
 
     @Override
@@ -78,42 +68,55 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository 
 
     @Override
     public void delete(UserEntity user) {
-        JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
-        template.update(
-                "DELETE FROM \"user\" WHERE id = ?",
-                user.getId()
-        );
+        userdataUserDao.delete(user);
     }
 
-    private void createFriendshipWithStatus(UserEntity requester, UserEntity addressee, FriendshipStatus status) {
-        JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
-        template.update(connection -> {
-            PreparedStatement statement = connection.prepareStatement(
-                    """
-                            INSERT INTO friendship (requester_id, addressee_id, status)
-                            VALUES (?, ?, ?)
-                            """
+    @Override
+    public void sendInvitation(UserEntity requester, UserEntity addressee) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO  friendship (requester_id, addressee_id, status) " +
+                            "VALUES (?, ?, ?) " +
+                            "ON CONFLICT (requester_id, addressee_id) " +
+                            "DO UPDATE SET status = ?"
             );
-            statement.setObject(1, requester.getId());
-            statement.setObject(2, addressee.getId());
-            statement.setString(3, status.name());
-            return statement;
+            ps.setObject(1, requester.getId());
+            ps.setObject(2, addressee.getId());
+            ps.setString(3, FriendshipStatus.PENDING.name());
+            ps.setDate(4, Date.valueOf(LocalDate.now()));
+            return ps;
         });
     }
 
-    @Override
-    public void addIncomeInvitation(UserEntity requester, UserEntity addressee) {
-        createFriendshipWithStatus(requester, addressee, FriendshipStatus.PENDING);
-    }
-
-    @Override
-    public void addOutcomeInvitation(UserEntity requester, UserEntity addressee) {
-        createFriendshipWithStatus(requester, addressee, FriendshipStatus.PENDING);
-    }
 
     @Override
     public void addFriend(UserEntity requester, UserEntity addressee) {
-        createFriendshipWithStatus(requester, addressee, FriendshipStatus.ACCEPTED);
-        createFriendshipWithStatus(addressee, requester, FriendshipStatus.ACCEPTED);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
+        jdbcTemplate.batchUpdate(
+                "INSERT INTO  friendship (requester_id, addressee_id, status) " +
+                        "VALUES (?, ?, ?) " +
+                        "ON CONFLICT (requester_id, addressee_id) " +
+                        "DO UPDATE SET status = ?",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        if (i == 0) {
+                            ps.setObject(1, requester.getId());
+                            ps.setObject(2, addressee.getId());
+                        } else {
+                            ps.setObject(1, addressee.getId());
+                            ps.setObject(2, requester.getId());
+                        }
+                        ps.setString(3, FriendshipStatus.ACCEPTED.name());
+                        ps.setDate(4, Date.valueOf(LocalDate.now()));
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return 2;
+                    }
+                }
+        );
     }
 }

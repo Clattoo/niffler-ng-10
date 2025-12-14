@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserdataUserSetExtractor implements ResultSetExtractor<UserEntity> {
     public static final UserdataUserSetExtractor instance = new UserdataUserSetExtractor();
 
-    private UserdataUserSetExtractor() {
+    public UserdataUserSetExtractor() {
     }
 
     @Override

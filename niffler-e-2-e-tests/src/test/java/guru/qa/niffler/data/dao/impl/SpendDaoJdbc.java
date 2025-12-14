@@ -55,6 +55,32 @@ public class SpendDaoJdbc implements SpendDao {
     }
 
     @Override
+    public SpendEntity update(SpendEntity spend) {
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
+                "UPDATE \"spend\" " +
+                        "SET username = ?, " +
+                        "spend_date   = ?, " +
+                        "currency     = ?, " +
+                        "amount       = ?, " +
+                        "description = ?, " +
+                        "category_id = ? " +
+                        "WHERE id = ? "
+        )) {
+            ps.setString(1, spend.getUsername());
+            ps.setDate(2, new java.sql.Date(spend.getSpendDate().getTime()));
+            ps.setString(3, spend.getCurrency().name());
+            ps.setDouble(4, spend.getAmount());
+            ps.setString(5, spend.getDescription());
+            ps.setObject(6, spend.getCategory().getId());
+            ps.setObject(7, spend.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return spend;
+    }
+
+    @Override
     public Optional<SpendEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM spend WHERE id = ?"
@@ -153,5 +179,38 @@ public class SpendDaoJdbc implements SpendDao {
             throw new RuntimeException(e);
         }
         return entityList;
+    }
+
+    @Override
+    public Optional<SpendEntity> findByUsernameAndSpendDescription(String username, String description) {
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
+                "SELECT * FROM spend WHERE username = ? AND description = ?"
+        )) {
+            ps.setString(1, username);
+            ps.setString(2, description);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    SpendEntity se = new SpendEntity();
+                    se.setId(rs.getObject("id", UUID.class));
+                    se.setUsername(rs.getString("username"));
+                    se.setSpendDate(rs.getDate("spend_date"));
+                    se.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+                    se.setAmount(rs.getDouble("amount"));
+                    se.setDescription(rs.getString("description"));
+                    UUID categoryId = rs.getObject("category_id", UUID.class);
+                    CategoryEntity category = new CategoryEntity();
+                    category.setId(categoryId);
+                    se.setCategory(category);
+                    return Optional.of(se);
+                } else {
+                    return Optional.empty();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
