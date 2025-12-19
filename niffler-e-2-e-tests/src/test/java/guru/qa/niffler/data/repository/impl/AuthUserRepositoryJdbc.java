@@ -23,7 +23,6 @@ import static guru.qa.niffler.data.tpl.Connections.holder;
 public class AuthUserRepositoryJdbc implements AuthUserRepository {
 
     private static final Config CFG = Config.getInstance();
-    private static final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
@@ -81,7 +80,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                         "WHERE id = ?"
         )) {
             ps.setString(1, user.getUsername());
-            ps.setString(2, pe.encode(user.getPassword()));
+            ps.setString(2, user.getPassword());
             ps.setBoolean(3, user.getEnabled());
             ps.setBoolean(4, user.getAccountNonExpired());
             ps.setBoolean(5, user.getAccountNonLocked());

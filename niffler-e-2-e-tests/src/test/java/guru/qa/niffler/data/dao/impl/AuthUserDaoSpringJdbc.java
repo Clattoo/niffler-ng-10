@@ -21,7 +21,6 @@ import java.util.UUID;
 public class AuthUserDaoSpringJdbc implements AuthUserDao {
 
     private static final Config CFG = Config.getInstance();
-    private static final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
@@ -60,7 +59,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
                 user.getAccountNonLocked(),
                 user.getCredentialsNonExpired(),
                 user.getEnabled(),
-                passwordEncoder.encode(user.getPassword()),
+                user.getPassword(),
                 user.getId()
         );
 
@@ -68,8 +67,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
             throw new IllegalStateException("Can't find user by id: " + user.getId());
         }
 
-        return findById(user.getId())
-                .orElseThrow(() -> new IllegalStateException("Can't find updated user by id: " + user.getId()));
+        return user;
     }
 
     @Override

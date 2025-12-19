@@ -20,7 +20,6 @@ import static guru.qa.niffler.data.tpl.Connections.holder;
 public class AuthUserDaoJdbc implements AuthUserDao {
 
     private static final Config CFG = Config.getInstance();
-    private static final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     @Override
     public AuthUserEntity create(AuthUserEntity user) {
@@ -69,7 +68,7 @@ public class AuthUserDaoJdbc implements AuthUserDao {
             ps.setBoolean(3, user.getAccountNonLocked());
             ps.setBoolean(4, user.getCredentialsNonExpired());
             ps.setBoolean(5, user.getEnabled());
-            ps.setString(6, passwordEncoder.encode(user.getPassword()));
+            ps.setString(6, user.getPassword());
             ps.setObject(7, user.getId());
 
             int count = ps.executeUpdate();

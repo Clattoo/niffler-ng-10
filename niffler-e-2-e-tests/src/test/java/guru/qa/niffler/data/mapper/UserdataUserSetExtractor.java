@@ -17,9 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserdataUserSetExtractor implements ResultSetExtractor<UserEntity> {
     public static final UserdataUserSetExtractor instance = new UserdataUserSetExtractor();
 
-    public UserdataUserSetExtractor() {
-    }
-
     @Override
     public UserEntity extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<UUID, UserEntity> users = new ConcurrentHashMap<>();
