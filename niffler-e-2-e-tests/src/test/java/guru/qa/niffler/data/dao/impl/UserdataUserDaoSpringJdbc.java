@@ -44,11 +44,60 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     }
 
     @Override
+    public UserEntity update(UserEntity user) {
+        JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
+
+        template.update(con -> {
+            PreparedStatement usersPs = con.prepareStatement(
+                    "UPDATE \"user\" " +
+                            "SET currency = ?, " +
+                            "firstname   = ?, " +
+                            "surname     = ?, " +
+                            "photo       = ?, " +
+                            "photo_small = ? " +
+                            "WHERE id = ?"
+            );
+            usersPs.setString(1, user.getCurrency().name());
+            usersPs.setString(2, user.getFirstname());
+            usersPs.setString(3, user.getSurname());
+            usersPs.setBytes(4, user.getPhoto());
+            usersPs.setBytes(5, user.getPhotoSmall());
+            usersPs.setObject(6, user.getId());
+            return usersPs;
+        });
+
+        if (user.getFriendshipRequests() != null && !user.getFriendshipRequests().isEmpty()) {
+            template.batchUpdate(
+                    "INSERT INTO friendship (requester_id, addressee_id, status) " +
+                            "VALUES (?, ?, ?) " +
+                            "ON CONFLICT (requester_id, addressee_id) " +
+                            "DO UPDATE SET status = ?",
+                    user.getFriendshipRequests(),
+                    user.getFriendshipRequests().size(),
+                    (ps, fe) -> {
+                        ps.setObject(1, user.getId());
+                        ps.setObject(2, fe.getAddressee().getId());
+                        ps.setString(3, fe.getStatus().name());
+                        ps.setString(4, fe.getStatus().name());
+                    }
+            );
+        }
+
+        return user;
+    }
+
+    @Override
     public Optional<UserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return Optional.ofNullable(
                 jdbcTemplate.queryForObject(
-                        "SELECT * FROM \"user\" WHERE id = ?",
+                        "SELECT u.*, " +
+                                "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                                "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                                "FROM \"user\" u " +
+                                "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                                "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
+                                "WHERE u.username = ?",
                         UserdataUserEntityRowMapper.instance,
                         id
                 )
@@ -59,7 +108,13 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     public Optional<UserEntity> findByUsername(String username) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return template.query(
-                "SELECT * FROM \"user\" WHERE username = ?",
+                "SELECT u.*, " +
+                        "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                        "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                        "FROM \"user\" u " +
+                        "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                        "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
+                        "WHERE u.username = ?",
                 UserdataUserEntityRowMapper.instance,
                 username
         ).stream().findFirst();

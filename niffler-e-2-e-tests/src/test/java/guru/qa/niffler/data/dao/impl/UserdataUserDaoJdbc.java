@@ -2,8 +2,9 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.UserdataUserDao;
+import guru.qa.niffler.data.entity.userdata.FriendshipEntity;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
-import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.data.mapper.UserdataUserSetExtractor;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -51,25 +52,64 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
+    public UserEntity update(UserEntity user) {
+        try (PreparedStatement usersPs = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
+                "UPDATE \"user\" " +
+                        "SET currency = ?, " +
+                        "firstname   = ?, " +
+                        "surname     = ?, " +
+                        "photo       = ?, " +
+                        "photo_small = ? " +
+                        "WHERE id = ? ");
+             PreparedStatement friendsPs = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
+                     "INSERT INTO friendship (requester_id, addressee_id, status) " +
+                             "VALUES (?, ?, ?) " +
+                             "ON CONFLICT (requester_id, addressee_id) " +
+                             "DO UPDATE SET status = ?")
+        ) {
+            usersPs.setString(1, user.getCurrency().name());
+            usersPs.setString(2, user.getFirstname());
+            usersPs.setString(3, user.getSurname());
+            usersPs.setBytes(4, user.getPhoto());
+            usersPs.setBytes(5, user.getPhotoSmall());
+            usersPs.setObject(6, user.getId());
+            usersPs.executeUpdate();
+
+            if (user.getFriendshipRequests() != null && !user.getFriendshipRequests().isEmpty()) {
+                for (FriendshipEntity fe : user.getFriendshipRequests()) {
+                    friendsPs.setObject(1, user.getId());
+                    friendsPs.setObject(2, fe.getAddressee().getId());
+                    friendsPs.setString(3, fe.getStatus().name());
+                    friendsPs.setString(4, fe.getStatus().name());
+                    friendsPs.addBatch();
+                    friendsPs.clearParameters();
+                }
+                friendsPs.executeBatch();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
+    }
+
+    @Override
     public Optional<UserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" WHERE id = ?"
+                "SELECT u.*, " +
+                        "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                        "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                        "FROM \"user\" u " +
+                        "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                        "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
+                        "WHERE u.id = ?"
         )) {
             ps.setObject(1, id);
-
-            try (ResultSet rs = ps.executeQuery()) {
+            ps.execute();
+            try (ResultSet rs = ps.getResultSet()) {
+                UserdataUserSetExtractor extractor = new UserdataUserSetExtractor();
+                UserEntity user = extractor.extractData(rs);
                 if (rs.next()) {
-                    UserEntity ue = new UserEntity();
-                    ue.setId(rs.getObject("id", UUID.class));
-                    ue.setUsername(rs.getString("username"));
-                    String currencyString = rs.getString("currency");
-                    ue.setCurrency(CurrencyValues.valueOf(currencyString));
-                    ue.setFirstname(rs.getString("firstname"));
-                    ue.setSurname(rs.getString("surname"));
-                    ue.setFullname(rs.getString("fullname"));
-                    ue.setPhoto(rs.getBytes("photo"));
-                    ue.setPhotoSmall(rs.getBytes("photoSmall"));
-                    return Optional.of(ue);
+                    return Optional.of(user);
                 } else {
                     return Optional.empty();
                 }
@@ -82,22 +122,21 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     @Override
     public Optional<UserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" WHERE username = ?"
+                "SELECT u.*, " +
+                        "fr.requester_id AS fr_requester_id, fr.addressee_id AS fr_addressee_id, fr.status AS fr_status, " +
+                        "fa.requester_id AS fa_requester_id, fa.addressee_id AS fa_addressee_id, fa.status AS fa_status " +
+                        "FROM \"user\" u " +
+                        "LEFT JOIN friendship fr ON u.id = fr.requester_id " +
+                        "LEFT JOIN friendship fa ON u.id = fa.addressee_id " +
+                        "WHERE u.username = ?"
         )) {
             ps.setObject(1, username);
-
-            try (ResultSet rs = ps.executeQuery()) {
+            ps.execute();
+            try (ResultSet rs = ps.getResultSet()) {
+                UserdataUserSetExtractor extractor = new UserdataUserSetExtractor();
+                UserEntity user = extractor.extractData(rs);
                 if (rs.next()) {
-                    UserEntity ue = new UserEntity();
-                    ue.setId(rs.getObject("id", UUID.class));
-                    ue.setUsername(rs.getString("username"));
-                    ue.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-                    ue.setFirstname(rs.getString("firstname"));
-                    ue.setSurname(rs.getString("surname"));
-                    ue.setFullname(rs.getString("fullname"));
-                    ue.setPhoto(rs.getBytes("photo"));
-                    ue.setPhotoSmall(rs.getBytes("photoSmall"));
-                    return Optional.of(ue);
+                    return Optional.of(user);
                 } else {
                     return Optional.empty();
                 }
