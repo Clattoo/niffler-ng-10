@@ -15,7 +15,10 @@ public class MainPage {
             personIcon = $("[data-testid='PersonIcon']"),
             profileLink = $("a[href='/profile']"),
             friendsLink = $("a[href='/people/friends']"),
-            allPeopleLink = $("a[href='/people/all']");
+            allPeopleLink = $("a[href='/people/all']"),
+            searchInput = $("input[aria-label='search']");
+    private final SelenideElement menuBtn = $("button[aria-label='Menu']");
+    private final ElementsCollection menuOptions = $$("li a");
 
     public MainPage checkThatPageLoaded() {
         spendingTable.should(visible);
@@ -43,5 +46,23 @@ public class MainPage {
         personIcon.click();
         friendsLink.click();
         return new FriendsPage();
+    }
+
+    public FriendsPage openFriendsPage() {
+        menuBtn.click();
+        menuOptions.find(text("Friends")).click();
+        return new FriendsPage();
+    }
+
+    public FriendsPage openAllPeoplePage() {
+        menuBtn.click();
+        menuOptions.find(text("Friends")).click();
+        allPeopleLink.click();
+        return new FriendsPage();
+    }
+
+    public MainPage search(String inputText) {
+        searchInput.setValue(inputText).pressEnter();
+        return this;
     }
 }

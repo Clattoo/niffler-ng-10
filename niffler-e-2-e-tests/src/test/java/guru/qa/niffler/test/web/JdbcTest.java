@@ -38,35 +38,15 @@ public class JdbcTest {
     void userDaoTest() {
         UserDbClient userDbClient = new UserDbClient();
         UserJson user = userDbClient.createUser(
-                new UserJson(
-                        null,
-                        "Clatto_Test_2",
-                        "Matthew",
-                        "Dyson",
-                        "Matthew Dyson",
-                        CurrencyValues.RUB,
-                        "123467890",
-                        "123467890"
-                )
-        );
+                "test99", "1234566");
         System.out.println(user);
     }
 
     @Test
     public void successTransactionTest() {
-        UserDbClient dbClient = new UserDbClient();
-        UserJson user = dbClient.createUser(
-                new UserJson(
-                        null,
-                        "Jdbc_1",
-                        "Petr",
-                        "Petrovich",
-                        "test",
-                        CurrencyValues.RUB,
-                        "fwaf",
-                        "nfdjsnj"
-                )
-        );
+        UserDbClient userDbClient = new UserDbClient();
+        UserJson user = userDbClient.createUser(
+                "test100", "qwerty123");
         System.out.println(user);
     }
 }

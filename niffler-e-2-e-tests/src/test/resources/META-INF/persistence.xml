@@ -4,8 +4,8 @@
              version="2.1">
     <persistence-unit name="jdbc:postgresql://localhost:5432/niffler-auth" transaction-type="JTA">
         <jta-data-source>java:comp/env/jdbc/niffler-auth</jta-data-source>
-        <class>guru.qa.niffler.data.entity.auth.AuthorityEntity</class>
-        <class>guru.qa.niffler.data.entity.auth.AuthUserEntity</class>
+        <class>guru.qa.niffler.data.entity.AuthorityEntity</class>
+        <class>guru.qa.niffler.data.entity.AuthUserEntity</class>
 
         <properties>
             <property name="hibernate.transaction.jta.platform"
@@ -21,6 +21,7 @@
         <jta-data-source>java:comp/env/jdbc/niffler-userdata</jta-data-source>
         <class>guru.qa.niffler.data.entity.userdata.UserEntity</class>
         <class>guru.qa.niffler.data.entity.userdata.FriendshipEntity</class>
+        <class>guru.qa.niffler.data.entity.userdata.PushTokenEntity</class>
 
         <properties>
             <property name="hibernate.transaction.jta.platform"

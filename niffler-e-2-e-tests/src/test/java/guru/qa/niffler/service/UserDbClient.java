@@ -4,6 +4,7 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.entity.AuthUserEntity;
 import guru.qa.niffler.data.entity.Authority;
 import guru.qa.niffler.data.entity.AuthorityEntity;
+import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.repository.AuthUserRepository;
 import guru.qa.niffler.data.repository.UserdataUserRepository;
@@ -12,11 +13,14 @@ import guru.qa.niffler.data.repository.impl.UserdataUserRepositoryHibernate;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.utils.RandomDataUtils;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
 public class UserDbClient implements UsersClient {
 
@@ -34,59 +38,113 @@ public class UserDbClient implements UsersClient {
     @Override
     public UserJson createUser(String username, String password) {
         return xaTransactionTemplate.execute(() -> {
-                    AuthUserEntity authUser = new AuthUserEntity();
-                    authUser.setUsername(username);
-                    authUser.setPassword(pe.encode(password));
-                    authUser.setEnabled(true);
-                    authUser.setAccountNonExpired(true);
-                    authUser.setAccountNonLocked(true);
-                    authUser.setCredentialsNonExpired(true);
-                    authUser.setAuthorities(Arrays.stream(Authority.values()).map(
-                                    e -> {
-                                        AuthorityEntity ae = new AuthorityEntity();
-                                        ae.setUser(authUser);
-                                        ae.setAuthority(e);
-                                        return ae;
-                                    }
-                            ).toList()
-                    );
+                    AuthUserEntity authUser = authUserEntity(username, password);
                     authUserRepository.create(authUser);
-
-                    UserEntity userdataUser = new UserEntity();
-                    userdataUser.setUsername(username);
-                    userdataUser.setFirstname(RandomDataUtils.randomName());
-                    userdataUser.setSurname(RandomDataUtils.randomSurname());
-                    userdataUser.setFullname(String.format("%s %s", userdataUser.getFirstname(), userdataUser.getSurname()));
-                    userdataUser.setCurrency(CurrencyValues.RUB);
-
                     return UserJson.fromEntity(
-                            userdataUserRepository.create(userdataUser)
+                            userdataUserRepository.create(userEntity(username)),
+                            null
                     );
                 }
         );
     }
 
     @Override
-    public void createIncomeInvitations(UserJson targetUser, int count) {
-        for (int i = 0; i < count; i++) {
-            UserJson friend = createUser(RandomDataUtils.randomUsername(), "12345");
-            userdataUserRepository.sendInvitation(UserEntity.fromJson(friend), UserEntity.fromJson(targetUser));
+    public List<UserJson> createIncomeInvitations(UserJson targetUser, int count) {
+        final List<UserJson> result = new ArrayList<>();
+        if (count > 0) {
+            UserEntity targetEntity = userdataUserRepository.findById(
+                    targetUser.getId()
+            ).orElseThrow();
+
+            for (int i = 0; i < count; i++) {
+                xaTransactionTemplate.execute(() -> {
+                            String username = randomUsername();
+                            AuthUserEntity authUser = authUserEntity(username, "12345");
+                            authUserRepository.create(authUser);
+                            UserEntity adressee = userdataUserRepository.create(userEntity(username));
+                            userdataUserRepository.sendInvitation(adressee, targetEntity);
+                            result.add(UserJson.fromEntity(adressee, FriendshipStatus.INVITE_RECEIVED));
+                            return null;
+                        }
+                );
+            }
         }
+        return result;
     }
 
     @Override
-    public void createOutcomeInvitations(UserJson targetUser, int count) {
-        for (int i = 0; i < count; i++) {
-            UserJson friend = createUser(RandomDataUtils.randomUsername(), "12345");
-            userdataUserRepository.sendInvitation(UserEntity.fromJson(targetUser), UserEntity.fromJson(friend));
+    public List<UserJson> createOutcomeInvitations(UserJson targetUser, int count) {
+        final List<UserJson> result = new ArrayList<>();
+        if (count > 0) {
+            UserEntity targetEntity = userdataUserRepository.findById(
+                    targetUser.getId()
+            ).orElseThrow();
+
+            for (int i = 0; i < count; i++) {
+                xaTransactionTemplate.execute(() -> {
+                            String username = randomUsername();
+                            AuthUserEntity authUser = authUserEntity(username, "12345");
+                            authUserRepository.create(authUser);
+                            UserEntity adressee = userdataUserRepository.create(userEntity(username));
+                            userdataUserRepository.sendInvitation(targetEntity, adressee);
+                            result.add(UserJson.fromEntity(adressee, FriendshipStatus.INVITE_SENT));
+                            return null;
+                        }
+                );
+            }
         }
+        return result;
     }
 
     @Override
-    public void createFriends(UserJson targetUser, int count) {
-        for (int i = 0; i < count; i++) {
-            UserJson friend = createUser(RandomDataUtils.randomUsername(), "12345");
-            userdataUserRepository.addFriend(UserEntity.fromJson(targetUser), UserEntity.fromJson(friend));
+    public List<UserJson> createFriends(UserJson targetUser, int count) {
+        final List<UserJson> result = new ArrayList<>();
+        if (count > 0) {
+            UserEntity targetEntity = userdataUserRepository.findById(
+                    targetUser.getId()
+            ).orElseThrow();
+
+            for (int i = 0; i < count; i++) {
+                xaTransactionTemplate.execute(() -> {
+                            String username = randomUsername();
+                            AuthUserEntity authUser = authUserEntity(username, "12345");
+                            authUserRepository.create(authUser);
+                            UserEntity adressee = userdataUserRepository.create(userEntity(username));
+                            userdataUserRepository.addFriend(targetEntity, adressee);
+                            result.add(UserJson.fromEntity(adressee, FriendshipStatus.FRIEND));
+                            return null;
+                        }
+                );
+            }
         }
+        return result;
+    }
+
+    private UserEntity userEntity(String username) {
+        UserEntity ue = new UserEntity();
+        ue.setUsername(username);
+        ue.setCurrency(CurrencyValues.RUB);
+        return ue;
+    }
+
+    private AuthUserEntity authUserEntity(String username, String password) {
+        AuthUserEntity authUser = new AuthUserEntity();
+        authUser.setUsername(username);
+        authUser.setPassword(pe.encode(password));
+        authUser.setEnabled(true);
+        authUser.setAccountNonExpired(true);
+        authUser.setAccountNonLocked(true);
+        authUser.setCredentialsNonExpired(true);
+        authUser.setAuthorities(
+                Arrays.stream(Authority.values()).map(
+                        e -> {
+                            AuthorityEntity ae = new AuthorityEntity();
+                            ae.setUser(authUser);
+                            ae.setAuthority(e);
+                            return ae;
+                        }
+                ).toList()
+        );
+        return authUser;
     }
 }
