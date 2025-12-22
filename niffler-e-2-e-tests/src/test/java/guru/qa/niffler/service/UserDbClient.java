@@ -24,6 +24,8 @@ import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
 public class UserDbClient implements UsersClient {
 
+    private static final String DEFAULT_PASSWORD = "12345";
+
     private static final Config CFG = Config.getInstance();
     private static final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
@@ -59,7 +61,7 @@ public class UserDbClient implements UsersClient {
             for (int i = 0; i < count; i++) {
                 xaTransactionTemplate.execute(() -> {
                             String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
+                            AuthUserEntity authUser = authUserEntity(username, DEFAULT_PASSWORD);
                             authUserRepository.create(authUser);
                             UserEntity adressee = userdataUserRepository.create(userEntity(username));
                             userdataUserRepository.sendInvitation(adressee, targetEntity);
@@ -83,7 +85,7 @@ public class UserDbClient implements UsersClient {
             for (int i = 0; i < count; i++) {
                 xaTransactionTemplate.execute(() -> {
                             String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
+                            AuthUserEntity authUser = authUserEntity(username, DEFAULT_PASSWORD);
                             authUserRepository.create(authUser);
                             UserEntity adressee = userdataUserRepository.create(userEntity(username));
                             userdataUserRepository.sendInvitation(targetEntity, adressee);
@@ -107,7 +109,7 @@ public class UserDbClient implements UsersClient {
             for (int i = 0; i < count; i++) {
                 xaTransactionTemplate.execute(() -> {
                             String username = randomUsername();
-                            AuthUserEntity authUser = authUserEntity(username, "12345");
+                            AuthUserEntity authUser = authUserEntity(username, DEFAULT_PASSWORD);
                             authUserRepository.create(authUser);
                             UserEntity adressee = userdataUserRepository.create(userEntity(username));
                             userdataUserRepository.addFriend(targetEntity, adressee);

@@ -32,6 +32,7 @@ public class MainPage {
     }
 
     public MainPage checkThatTableContains(String description) {
+        search(description);
         tableRows.find(text(description)).should(visible);
         return this;
     }
@@ -61,7 +62,7 @@ public class MainPage {
         return new FriendsPage();
     }
 
-    public MainPage search(String inputText) {
+    private MainPage search(String inputText) {
         searchInput.setValue(inputText).pressEnter();
         return this;
     }

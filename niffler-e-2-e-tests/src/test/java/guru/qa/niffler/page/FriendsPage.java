@@ -65,7 +65,7 @@ public class FriendsPage {
     }
 
     public FriendsPage checkOutcomeInvitationShouldBeVisible(String username) {
-        allPeopleTab.shouldBe(visible).click();
+        allPeopleTab.click();
         allPeopleList.shouldBe(visible);
         search(username);
         allPeopleRows.findBy(text(username))
@@ -75,7 +75,7 @@ public class FriendsPage {
         return this;
     }
 
-    public FriendsPage search(String keyword) {
+    private FriendsPage search(String keyword) {
         searchInput.setValue(keyword).pressEnter();
         return this;
     }

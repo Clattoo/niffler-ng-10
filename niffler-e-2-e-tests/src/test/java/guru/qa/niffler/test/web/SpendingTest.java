@@ -56,7 +56,6 @@ public class SpendingTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(userJson.getUsername(), userJson.getTestData().password())
                 .checkThatPageLoaded()
-                .search(spendingDescription)
                 .checkThatTableContains(spendingDescription);
     }
 }
