@@ -16,7 +16,7 @@ public class SpendRepositoryHibernate implements SpendRepository {
 
     private static final Config CFG = Config.getInstance();
 
-    private final EntityManager entityManager = em(CFG.authJdbcUrl());
+    private final EntityManager entityManager = em(CFG.spendJdbcUrl());
 
     @Override
     public SpendEntity create(SpendEntity spend) {

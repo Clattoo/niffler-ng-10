@@ -1,6 +1,5 @@
 package guru.qa.niffler.data.entity.userdata;
 
-import guru.qa.niffler.data.entity.AuthorityEntity;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
 import jakarta.persistence.*;
@@ -46,9 +45,6 @@ public class UserEntity implements Serializable {
 
     @Column(name = "photo_small", columnDefinition = "bytea")
     private byte[] photoSmall;
-
-    @OneToMany(fetch = EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
-    private List<AuthorityEntity> authorities = new ArrayList<>();
 
     @OneToMany(mappedBy = "requester", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FriendshipEntity> friendshipRequests = new ArrayList<>();
@@ -125,14 +121,14 @@ public class UserEntity implements Serializable {
 
     public static UserEntity fromJson(UserJson json) {
         UserEntity ue = new UserEntity();
-        ue.setId(json.id());
-        ue.setUsername(json.username());
-        ue.setFirstname(json.firstname());
-        ue.setSurname(json.surname());
-        ue.setFullname(json.fullname());
-        ue.setCurrency(json.currency());
-        ue.setPhoto(json.photo() != null ? json.photo().getBytes(StandardCharsets.UTF_8) : null);
-        ue.setPhotoSmall(json.photoSmall() != null ? json.photoSmall().getBytes(StandardCharsets.UTF_8) : null);
+        ue.setId(json.getId());
+        ue.setUsername(json.getUsername());
+        ue.setFirstname(json.getFirstname());
+        ue.setSurname(json.getSurname());
+        ue.setFullname(json.getFullname());
+        ue.setCurrency(json.getCurrency());
+        ue.setPhoto(json.getPhoto() != null ? json.getPhoto().getBytes(StandardCharsets.UTF_8) : null);
+        ue.setPhotoSmall(json.getPhotoSmall() != null ? json.getPhotoSmall().getBytes(StandardCharsets.UTF_8) : null);
         return ue;
     }
 }

@@ -3,8 +3,7 @@ package guru.qa.niffler.page;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 
-import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -13,7 +12,15 @@ public class FriendsPage {
             allPeopleTab = $("a[href='/people/all']"),
             emptylistOfFriends = $("#simple-tabpanel-friends"),
             listOfFriends = $("#friends"),
-            listOfRequests = $("#requests");
+            listOfRequests = $("#requests"),
+            searchInput = $("input[aria-label='search']"),
+            friendRequestsTab = $("#requests"),
+            myFriendsTable = $("#friends"),
+            allPeopleList = $("#all");
+
+    private final ElementsCollection allPeopleRows = allPeopleList.$$("tbody tr");
+    private final ElementsCollection friendRequestsRow = friendRequestsTab.$$("tbody tr");
+    private final ElementsCollection myFriendsRows = myFriendsTable.$$("tbody tr");
 
     private ElementsCollection allPeopleTableRows = $$("tbody#all > tr");
 
@@ -35,6 +42,41 @@ public class FriendsPage {
 
     public FriendsPage checkFriendsRequest(String username) {
         listOfRequests.shouldHave(text(username));
+        return this;
+    }
+
+    public FriendsPage checkFriendsListIsEmpty() {
+        myFriendsRows.first().shouldNotBe(visible);
+        return this;
+    }
+
+    public FriendsPage checkFriendsListIsNotEmpty() {
+        myFriendsRows.first().shouldBe(visible);
+        return this;
+    }
+
+    public FriendsPage checkIncomeInvitationShouldBeVisible(String username) {
+        search(username);
+        friendRequestsRow.findBy(text(username))
+                .shouldBe(visible)
+                .$("button[type='button']")
+                .shouldHave(text("Accept"));
+        return this;
+    }
+
+    public FriendsPage checkOutcomeInvitationShouldBeVisible(String username) {
+        allPeopleTab.click();
+        allPeopleList.shouldBe(visible);
+        search(username);
+        allPeopleRows.findBy(text(username))
+                .shouldBe(visible)
+                .$(".MuiChip-label")
+                .shouldHave(text("Waiting..."));
+        return this;
+    }
+
+    private FriendsPage search(String keyword) {
+        searchInput.setValue(keyword).pressEnter();
         return this;
     }
 }
