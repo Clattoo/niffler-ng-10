@@ -8,9 +8,9 @@ import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class AuthUserDaoSpringJdbc implements AuthUserDao {
 
     private static final Config CFG = Config.getInstance();
@@ -43,6 +44,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
+    @Nonnull
     public AuthUserEntity updateUser(AuthUserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         int userId = jdbcTemplate.update(
@@ -71,6 +73,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
+    @Nonnull
     public Optional<AuthUserEntity> findById(UUID id) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         return template.query(
@@ -81,6 +84,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
+    @Nonnull
     public List<AuthUserEntity> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         return jdbcTemplate.query(
@@ -90,6 +94,7 @@ public class AuthUserDaoSpringJdbc implements AuthUserDao {
     }
 
     @Override
+    @Nonnull
     public Optional<AuthUserEntity> findByUsername(String username) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         return template.query(

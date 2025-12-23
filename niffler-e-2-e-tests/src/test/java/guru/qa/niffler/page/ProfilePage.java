@@ -2,6 +2,8 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ClickOptions;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.config.Config;
+import guru.qa.niffler.page.component.Header;
 
 import java.io.File;
 
@@ -9,11 +11,14 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
 public class ProfilePage {
+
+    public static String url = Config.getInstance().frontUrl() + "profile";
+    private final Header header = new Header();
     private final SelenideElement uploadPictureButton = $(".image__input-label");
     private final SelenideElement registerPassKey = $("#:r11:");
     private final SelenideElement usernameInput = $("#username");
     private final SelenideElement nameInput = $("#name");
-    private final SelenideElement saveChangesButton = $("#:r12:");
+    private final SelenideElement saveChangesButton = $$("button[type='submit']").findBy(text("Save changes"));
     private final SelenideElement showArchivedCategoriesCheckbox = $x("//span[contains(text(),'Show archived')]/..//input[@type='checkbox']");
     private final SelenideElement addNewCategoryInput = $("#category");
     private final SelenideElement submitArchive = $x("//button[contains(@class,'MuiButtonBase-root') and normalize-space(text())='Archive']");
@@ -68,7 +73,7 @@ public class ProfilePage {
     }
 
     public ProfilePage checkNameInputValue(String value) {
-        nameInput.shouldHave(text(value));
+        nameInput.shouldHave(value(value));
         return this;
     }
 
@@ -151,5 +156,13 @@ public class ProfilePage {
     public ProfilePage isCategoryExists(String category) {
         findCategory(category).shouldBe(exist);
         return this;
+    }
+
+    public MainPage returnToMainPage() {
+        return header.toMainPage();
+    }
+
+    public ProfilePage openProfile() {
+        return header.toProfilePage();
     }
 }

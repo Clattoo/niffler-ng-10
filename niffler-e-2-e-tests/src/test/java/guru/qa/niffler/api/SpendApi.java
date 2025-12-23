@@ -6,8 +6,11 @@ import guru.qa.niffler.model.SpendJson;
 import retrofit2.Call;
 import retrofit2.http.*;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public interface SpendApi {
 
     @GET("internal/spends/{id}")
@@ -16,9 +19,9 @@ public interface SpendApi {
     @GET("internal/spends/all")
     Call<SpendJson[]> getSpends(
             @Query("username") String username,
-            @Query("filterCurrency") CurrencyValues filterCurrency,
-            @Query("from") String from,
-            @Query("to") String to
+            @Nullable @Query("filterCurrency") CurrencyValues filterCurrency,
+            @Nullable @Query("from") String from,
+            @Nullable @Query("to") String to
     );
 
     @POST("internal/spends/add")

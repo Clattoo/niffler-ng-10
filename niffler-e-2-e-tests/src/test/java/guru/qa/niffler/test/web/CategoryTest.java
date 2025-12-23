@@ -27,7 +27,7 @@ public class CategoryTest {
     public void archiveCategoryTest(CategoryJson categoryJson) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(categoryJson.username(), "qwerty123")
-                .editProfile()
+                .openProfile()
                 .archiveCategory(categoryJson.name())
                 .checkShowArchivedCategories()
                 .isCategoryExists(categoryJson.name());
@@ -45,7 +45,7 @@ public class CategoryTest {
 
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(categoryJson.username(), "qwerty123")
-                .editProfile()
+                .openProfile()
                 .checkShowArchivedCategories()
                 .unArchiveCategory(categoryJson.name())
                 .uncheckShowArchivedCategories()

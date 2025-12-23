@@ -5,8 +5,10 @@ import retrofit2.Call;
 import retrofit2.http.*;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public interface UserdataApi {
     @GET("internal/users/current")
     Call<UserJson> currentUser(@Query("username") String username);

@@ -10,10 +10,14 @@ import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
+import io.qameta.allure.Step;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
+@ParametersAreNonnullByDefault
 public class SpendDbClient implements SpendClient {
 
     private static final Config CFG = Config.getInstance();
@@ -29,7 +33,8 @@ public class SpendDbClient implements SpendClient {
     );
 
     @Override
-    public SpendJson findSpendById(String id, String username) {
+    @Step("Найти spend по ID {id} пользователя {username}")
+    public @Nullable SpendJson findSpendById(String id, String username) {
         throw new UnsupportedOperationException("Not implemented :(");
     }
 
@@ -40,6 +45,7 @@ public class SpendDbClient implements SpendClient {
     }
 
     @Override
+    @Step("Создать spend")
     public SpendJson createSpend(SpendJson spend) {
         return xaTxTemplate.execute(() -> {
             SpendEntity spendEntity = SpendEntity.fromJson(spend);
@@ -54,6 +60,7 @@ public class SpendDbClient implements SpendClient {
     }
 
     @Override
+    @Step("Обновить spend")
     public SpendJson updateSpend(SpendJson spend) {
         return SpendJson.fromEntity(spendRepository.update(SpendEntity.fromJson(spend)));
     }
@@ -69,6 +76,7 @@ public class SpendDbClient implements SpendClient {
     }
 
     @Override
+    @Step("Создать категорию")
     public CategoryJson createCategory(CategoryJson category) {
         return xaTxTemplate.execute(() -> {
             CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
@@ -83,6 +91,7 @@ public class SpendDbClient implements SpendClient {
     }
 
     @Override
+    @Step("Найти категорию по имени {categoryName} пользователя {username}")
     public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName,
                                                                 String username) {
         return xaTxTemplate.execute(() -> {

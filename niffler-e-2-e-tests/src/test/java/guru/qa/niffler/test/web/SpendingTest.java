@@ -9,6 +9,8 @@ import guru.qa.niffler.jupiter.extension.TestMethodContextExtension;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.page.component.Header;
+import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -19,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class SpendingTest {
 
     private static final Config CFG = Config.getInstance();
+    private final Header header = new Header();
+    private final RandomDataUtils randomData = new RandomDataUtils();
 
     @User(
             spendings = @Spending(
@@ -57,5 +61,22 @@ public class SpendingTest {
                 .login(userJson.getUsername(), userJson.getTestData().password())
                 .checkThatPageLoaded()
                 .checkThatTableContains(spendingDescription);
+    }
+
+    @Test
+    @User
+    public void addNewSpendingTest(UserJson user) {
+        String newDescription = RandomDataUtils.randomSentence(1);
+
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .login(user.getUsername(), user.getTestData().password())
+                .checkThatPageLoaded();
+
+        header.addSpendingPage()
+                .setAmountSpending(RandomDataUtils.randomInteger())
+                .setCategorySpending(RandomDataUtils.randomCategoryName())
+                .setNewSpendingDescription(newDescription)
+                .save()
+                .checkThatTableContains(newDescription);
     }
 }

@@ -5,11 +5,15 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
+import io.qameta.allure.Step;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,6 +21,7 @@ import java.util.Optional;
 import static org.apache.hc.core5.http.HttpStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ParametersAreNonnullByDefault
 public class SpendApiClient implements SpendClient {
 
     private static final Config CFG = Config.getInstance();
@@ -29,7 +34,8 @@ public class SpendApiClient implements SpendClient {
     private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
     @Override
-    public SpendJson findSpendById(String id, String username) {
+    @Step("Найти spend по ID {id} пользователя {username}")
+    public @Nullable SpendJson findSpendById(String id, String username) {
         final Response<SpendJson> response;
         try {
             response = spendApi.getSpend(id, username).execute();
@@ -41,6 +47,7 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
+    @Step("Найти все spends пользователя {username} с валютой {currencyValues} в период с {from} по {to}")
     public List<SpendJson> findSpendsByUserName(String username, CurrencyValues currencyValues,
                                                 String from, String to) {
         final Response<SpendJson[]> response;
@@ -54,7 +61,8 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
-    public SpendJson createSpend(SpendJson spend) {
+    @Step("Создать новый spend")
+    public @Nullable SpendJson createSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
             response = spendApi.addSpend(spend).execute();
@@ -66,7 +74,8 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
-    public SpendJson updateSpend(SpendJson spend) {
+    @Step("Обновить spend")
+    public @Nullable SpendJson updateSpend(SpendJson spend) {
         final Response<SpendJson> response;
         try {
             response = spendApi.updateSpend(spend).execute();
@@ -78,6 +87,7 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
+    @Step("Удалить spends пользователя {username}")
     public void deleteSpends(String username, List<String> ids) {
         final Response<Void> response;
         try {
@@ -89,6 +99,7 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
+    @Step("Получить все категории пользователя {username}")
     public List<CategoryJson> findAllCategories(String username) {
         final Response<List<CategoryJson>> response;
         try {
@@ -97,12 +108,14 @@ public class SpendApiClient implements SpendClient {
             throw new AssertionError(e);
         }
         assertEquals(SC_OK, response.code());
-        assert response.body() != null;
-        return response.body();
+        return response.body() != null
+                ? response.body()
+                : Collections.emptyList();
     }
 
     @Override
-    public CategoryJson createCategory(CategoryJson category) {
+    @Step("Создать новую категорию {category}")
+    public @Nullable CategoryJson createCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
             response = spendApi.addCategory(category).execute();
@@ -114,7 +127,8 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
-    public CategoryJson updateCategory(CategoryJson category) {
+    @Step("Обновить категорию {category}")
+    public @Nullable CategoryJson updateCategory(CategoryJson category) {
         final Response<CategoryJson> response;
         try {
             response = spendApi.updateCategory(category).execute();

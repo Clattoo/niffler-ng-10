@@ -2,6 +2,7 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.Header;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -9,6 +10,7 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
 public class MainPage {
+
     public final ElementsCollection tableRows = $$("#spendings tr");
     public final SelenideElement spendingTable = $("#spendings"),
             statisticsField = $("#stat"),
@@ -17,6 +19,7 @@ public class MainPage {
             friendsLink = $("a[href='/people/friends']"),
             allPeopleLink = $("a[href='/people/all']"),
             searchInput = $("input[aria-label='search']");
+    private final Header header = new Header();
     private final SelenideElement menuBtn = $("button[aria-label='Menu']");
     private final ElementsCollection menuOptions = $$("li a");
 
@@ -37,10 +40,8 @@ public class MainPage {
         return this;
     }
 
-    public ProfilePage editProfile() {
-        personIcon.click();
-        profileLink.click();
-        return new ProfilePage();
+    public ProfilePage openProfile() {
+        return header.toProfilePage();
     }
 
     public FriendsPage openListOfFriends() {
