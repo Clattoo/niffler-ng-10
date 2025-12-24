@@ -22,7 +22,7 @@ public class SearchField {
         return this;
     }
 
-    @Step("Очистка строки поиска в случае если она не пустая")
+    @Step("Очистить строку поиска в случае если она не пустая")
     public SearchField clearIfNotEmpty() {
         if (!searchInput.getValue().trim().isEmpty()) {
             clearSearchButton.click();

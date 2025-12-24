@@ -45,7 +45,7 @@ public class FriendsWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage()
-                .checkFriendsListIsEmpty();
+                .checkEmptyListOfFriends();
     }
 
     @Test
@@ -55,7 +55,7 @@ public class FriendsWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage()
-                .checkIncomeInvitationShouldBeVisible(user.getTestData().incomeInvitations().getFirst().getUsername());
+                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class FriendsWebTest {
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage();
         String acceptedUsername = friendsPage
-                .checkIncomeInvitationShouldBeVisible(user.getTestData().incomeInvitations().getFirst().getUsername())
+                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername())
                 .acceptFriendsInvitation();
 
         friendsPage.checkThatExactFriendExistInList(acceptedUsername);
@@ -89,7 +89,7 @@ public class FriendsWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage()
-                .checkIncomeInvitationShouldBeVisible(user.getTestData().incomeInvitations().getFirst().getUsername())
+                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername())
                 .declineFriendsInviteButton()
                 .checkEmptyListOfFriends();
     }

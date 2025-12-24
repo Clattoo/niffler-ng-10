@@ -2,6 +2,7 @@ package guru.qa.niffler.page.component;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ public class Calendar {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
 
 
+    @Step("Выбор даты в календаре. Выбираемая дата: {date}")
     public Calendar selectDateInCalendar(Date date) {
         LocalDate dateToSelect = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         calendarButton.click();
@@ -41,6 +43,7 @@ public class Calendar {
         return this;
     }
 
+    @Step("Выставление года в календаре")
     private void selectYear(int year) {
         int currentYear = YearMonth.parse(currentYearMonth.text(), formatter).getYear();
         if (currentYear != year) {
@@ -51,6 +54,7 @@ public class Calendar {
         }
     }
 
+    @Step("Выставление месяца в календаре")
     private void selectMonth(int month) {
         int currentMonth = YearMonth.parse(currentYearMonth.text(), formatter).getMonthValue();
         while (currentMonth != month) {
@@ -64,6 +68,7 @@ public class Calendar {
         }
     }
 
+    @Step("Выставление дня в календаре")
     private void selectDay(int day) {
         dayCalendarList.find(text(String.valueOf(day)))
                 .click();
