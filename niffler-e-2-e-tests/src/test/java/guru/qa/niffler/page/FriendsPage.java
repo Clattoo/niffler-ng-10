@@ -21,7 +21,6 @@ public class FriendsPage extends BasePage<FriendsPage> {
             friendRequestsTab = $("#requests"),
             myFriendsTable = $("#friends"),
             allPeopleList = $("#all"),
-            acceptFriendsInviteButton = $(""),
             declineFriendsInviteConfirmationButton = $$("div[role='dialog'] button").findBy(text("Decline"));
     private final ElementsCollection allPeopleTableRows = $$("tbody#all > tr");
     private final ElementsCollection allPeopleRows = allPeopleList.$$("tbody tr");
