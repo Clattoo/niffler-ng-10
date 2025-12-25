@@ -3,7 +3,6 @@ package guru.qa.niffler.test.web;
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.jupiter.extension.TestMethodContextExtension;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.FriendsPage;
 import guru.qa.niffler.page.LoginPage;
@@ -11,20 +10,16 @@ import guru.qa.niffler.page.MainPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 
-@ExtendWith(TestMethodContextExtension.class)
 public class FriendsWebTest {
 
     private static final Config CFG = Config.getInstance();
 
-    private MainPage mainPage;
     private FriendsPage friendsPage;
 
     @BeforeEach
     void setUp() {
-        mainPage = new MainPage();
         friendsPage = new FriendsPage();
     }
 
@@ -75,11 +70,13 @@ public class FriendsWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage();
-        String acceptedUsername = friendsPage
-                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername())
-                .acceptFriendsInvitation();
 
-        friendsPage.checkThatExactFriendExistInList(acceptedUsername);
+        String invitationUsername = user.getTestData().incomeInvitations().getFirst().getUsername();
+        friendsPage
+                .checkFriendsRequest(invitationUsername)
+                .acceptFriendsInvitation()
+                .checkSnackbarText("Invitation of " + invitationUsername + " accepted")
+                .checkThatExactFriendExistInList(invitationUsername);
     }
 
     @Test
@@ -88,9 +85,13 @@ public class FriendsWebTest {
     public void declineIncomeInvitationInFriendsTable(UserJson user) {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
-                .openFriendsPage()
-                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername())
+                .openFriendsPage();
+
+        String invitationUsername = user.getTestData().incomeInvitations().getFirst().getUsername();
+
+        friendsPage.checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername())
                 .declineFriendsInviteButton()
+                .checkSnackbarText("Invitation of " + invitationUsername + " is declined")
                 .checkEmptyListOfFriends();
     }
 }

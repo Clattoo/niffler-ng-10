@@ -9,11 +9,14 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
-public class SearchField {
-    private final SelenideElement self = $("form[class*='MuiBox-root']");
+public class SearchField extends BaseComponent<SearchField> {
 
     private final SelenideElement searchInput = self.$("input[aria-label='search']");
     private final SelenideElement clearSearchButton = self.$("#input-clear");
+
+    public SearchField() {
+        super($("form[class*='MuiBox-root']"));
+    }
 
     @Step("Поиск по фразе: {query}")
     public SearchField search(String query) {

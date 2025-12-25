@@ -17,7 +17,7 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
-public class Calendar {
+public class Calendar extends BaseComponent<Calendar> {
     private final SelenideElement self = $(".MuiInputBase-adornedEnd");
 
     private final SelenideElement calendarButton = self.find("button");
@@ -31,6 +31,10 @@ public class Calendar {
     private final ElementsCollection dayCalendarList = dateCalendar.find(".MuiDayCalendar-monthContainer")
             .findAll("button");
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+
+    public Calendar() {
+        super($(".MuiInputBase-adornedEnd"));
+    }
 
 
     @Step("Выбор даты в календаре. Выбираемая дата: {date}")
