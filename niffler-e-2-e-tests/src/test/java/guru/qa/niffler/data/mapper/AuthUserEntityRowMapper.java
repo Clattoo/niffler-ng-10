@@ -17,8 +17,9 @@ public class AuthUserEntityRowMapper implements RowMapper<AuthUserEntity> {
     private AuthUserEntityRowMapper() {
     }
 
+    @Nullable
     @Override
-    public @Nullable AuthUserEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public AuthUserEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         AuthUserEntity result = new AuthUserEntity();
         result.setId(rs.getObject("id", UUID.class));
         result.setUsername(rs.getString("username"));

@@ -10,6 +10,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
@@ -47,6 +48,7 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
+    @Nonnull
     @Step("Найти все spends пользователя {username} с валютой {currencyValues} в период с {from} по {to}")
     public List<SpendJson> findSpendsByUserName(String username, CurrencyValues currencyValues,
                                                 String from, String to) {
@@ -99,6 +101,7 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
+    @Nonnull
     @Step("Получить все категории пользователя {username}")
     public List<CategoryJson> findAllCategories(String username) {
         final Response<List<CategoryJson>> response;

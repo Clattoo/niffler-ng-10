@@ -10,6 +10,8 @@ import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 public interface AuthUserDao {
+
+    @Nonnull
     AuthUserEntity create(AuthUserEntity user);
 
     @Nonnull

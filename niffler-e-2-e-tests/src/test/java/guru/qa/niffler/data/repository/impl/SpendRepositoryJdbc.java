@@ -28,7 +28,7 @@ public class SpendRepositoryJdbc implements SpendRepository {
     );
 
     @Override
-    public SpendEntity create(SpendEntity spend) {
+    public @Nonnull SpendEntity create(SpendEntity spend) {
         return xaTxTemplate.execute(() -> {
             if (spend.getCategory() != null) {
                 CategoryEntity category = categoryDao.findById(spend.getCategory().getId())

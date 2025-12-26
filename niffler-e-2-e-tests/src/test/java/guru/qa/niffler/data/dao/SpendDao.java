@@ -11,6 +11,7 @@ import java.util.UUID;
 @ParametersAreNonnullByDefault
 public interface SpendDao {
 
+    @Nonnull
     SpendEntity create(SpendEntity spend);
 
     @Nonnull

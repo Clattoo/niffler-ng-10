@@ -5,7 +5,7 @@ import guru.qa.niffler.data.entity.Authority;
 import guru.qa.niffler.data.entity.AuthorityEntity;
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,8 +19,9 @@ public class AuthorityEntityRowMapper implements RowMapper<AuthorityEntity> {
     private AuthorityEntityRowMapper() {
     }
 
+    @Nonnull
     @Override
-    public @Nullable AuthorityEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public AuthorityEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         AuthorityEntity result = new AuthorityEntity();
         result.setId(rs.getObject("id", UUID.class));
         AuthUserEntity user = new AuthUserEntity();

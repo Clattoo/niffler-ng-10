@@ -26,8 +26,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     private static final Config CFG = Config.getInstance();
 
     @Override
-    @Nonnull
-    public AuthUserEntity create(AuthUserEntity user) {
+    public @Nonnull AuthUserEntity create(AuthUserEntity user) {
         try (PreparedStatement userPs = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "INSERT INTO \"user\" (username, password, enabled, account_non_expired, account_non_locked, credentials_non_expired)"
                         +
@@ -100,6 +99,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
         }
     }
 
+    @Nonnull
     @Override
     public Optional<AuthUserEntity> findByUsername(String username) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
@@ -136,7 +136,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
     }
 
     @Override
-    public Optional<AuthUserEntity> findById(UUID id) {
+    public @Nonnull Optional<AuthUserEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
                 "SELECT u.*, a.id AS authority_id, a.user_id, a.authority FROM \"user\" u JOIN authority a on u.id = a.user_id WHERE u.id = ?"
         )) {

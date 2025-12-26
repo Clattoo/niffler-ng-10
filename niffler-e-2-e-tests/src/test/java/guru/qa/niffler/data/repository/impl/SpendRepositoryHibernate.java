@@ -22,7 +22,7 @@ public class SpendRepositoryHibernate implements SpendRepository {
     private final EntityManager entityManager = em(CFG.spendJdbcUrl());
 
     @Override
-    public SpendEntity create(SpendEntity spend) {
+    public @Nonnull SpendEntity create(SpendEntity spend) {
         entityManager.joinTransaction();
         entityManager.persist(spend);
         return spend;

@@ -9,6 +9,8 @@ import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 public interface UserdataUserDao {
+
+    @Nonnull
     UserEntity create(UserEntity user);
 
     @Nonnull

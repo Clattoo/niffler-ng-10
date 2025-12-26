@@ -28,7 +28,7 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
     );
 
     @Override
-    public SpendEntity create(SpendEntity spend) {
+    public @Nonnull SpendEntity create(SpendEntity spend) {
         return xaTxTemplate.execute(() -> {
             SpendEntity resultSpend = spendDao.create(spend);
             if (spend.getCategory() != null) {

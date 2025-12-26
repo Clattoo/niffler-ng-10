@@ -5,7 +5,7 @@ import guru.qa.niffler.data.entity.userdata.FriendshipStatus;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,8 +20,9 @@ public class FriendshipEntityRowMapper implements RowMapper<FriendshipEntity> {
     private FriendshipEntityRowMapper() {
     }
 
+    @Nonnull
     @Override
-    public @Nullable FriendshipEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public FriendshipEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         FriendshipEntity friendship = new FriendshipEntity();
         UserEntity requester = new UserEntity();
         UserEntity addressee = new UserEntity();

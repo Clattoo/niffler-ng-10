@@ -3,7 +3,7 @@ package guru.qa.niffler.data.mapper;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,8 +17,9 @@ public class CategoryEntityRowMapper implements RowMapper<CategoryEntity> {
     private CategoryEntityRowMapper() {
     }
 
+    @Nonnull
     @Override
-    public @Nullable CategoryEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public CategoryEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
         CategoryEntity result = new CategoryEntity();
         result.setId(rs.getObject("id", UUID.class));
         result.setName(rs.getString("name"));

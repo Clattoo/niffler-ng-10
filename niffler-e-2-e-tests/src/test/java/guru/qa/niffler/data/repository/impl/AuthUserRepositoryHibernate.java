@@ -21,8 +21,7 @@ public class AuthUserRepositoryHibernate implements AuthUserRepository {
     private final EntityManager entityManager = em(CFG.authJdbcUrl());
 
     @Override
-    @Nonnull
-    public AuthUserEntity create(AuthUserEntity user) {
+    public @Nonnull AuthUserEntity create(AuthUserEntity user) {
         entityManager.joinTransaction();
         entityManager.persist(user);
         return user;
@@ -35,6 +34,7 @@ public class AuthUserRepositoryHibernate implements AuthUserRepository {
         return entityManager.merge(user);
     }
 
+    @Nonnull
     @Override
     public Optional<AuthUserEntity> findByUsername(String username) {
         try {
@@ -49,7 +49,7 @@ public class AuthUserRepositoryHibernate implements AuthUserRepository {
     }
 
     @Override
-    public Optional<AuthUserEntity> findById(UUID id) {
+    public @Nonnull Optional<AuthUserEntity> findById(UUID id) {
         return Optional.ofNullable(
                 entityManager.find(AuthUserEntity.class, id)
         );
