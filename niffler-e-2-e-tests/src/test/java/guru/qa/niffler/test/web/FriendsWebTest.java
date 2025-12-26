@@ -45,7 +45,7 @@ public class FriendsWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage()
-                .checkFriendsListIsEmpty();
+                .checkEmptyListOfFriends();
     }
 
     @Test
@@ -55,7 +55,7 @@ public class FriendsWebTest {
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage()
-                .checkIncomeInvitationShouldBeVisible(user.getTestData().incomeInvitations().getFirst().getUsername());
+                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername());
     }
 
     @Test
@@ -66,5 +66,31 @@ public class FriendsWebTest {
                 .login(user.getUsername(), user.getTestData().password())
                 .openFriendsPage()
                 .checkOutcomeInvitationShouldBeVisible(user.getTestData().outcomeInvitations().getFirst().getUsername());
+    }
+
+    @Test
+    @User(incomeInvitations = 1)
+    @DisplayName("Добавление друга через входящий запрос на добавление в друзья")
+    public void acceptIncomeInvitationInFriendsTable(UserJson user) {
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .login(user.getUsername(), user.getTestData().password())
+                .openFriendsPage();
+        String acceptedUsername = friendsPage
+                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername())
+                .acceptFriendsInvitation();
+
+        friendsPage.checkThatExactFriendExistInList(acceptedUsername);
+    }
+
+    @Test
+    @User(incomeInvitations = 1)
+    @DisplayName("Отклонение входящей заявки в друзья")
+    public void declineIncomeInvitationInFriendsTable(UserJson user) {
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .login(user.getUsername(), user.getTestData().password())
+                .openFriendsPage()
+                .checkFriendsRequest(user.getTestData().incomeInvitations().getFirst().getUsername())
+                .declineFriendsInviteButton()
+                .checkEmptyListOfFriends();
     }
 }

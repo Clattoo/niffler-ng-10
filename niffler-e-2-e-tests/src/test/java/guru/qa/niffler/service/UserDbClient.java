@@ -13,15 +13,18 @@ import guru.qa.niffler.data.repository.impl.UserdataUserRepositoryHibernate;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
+import io.qameta.allure.Step;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
+@ParametersAreNonnullByDefault
 public class UserDbClient implements UsersClient {
 
     private static final String DEFAULT_PASSWORD = "12345";
@@ -38,6 +41,7 @@ public class UserDbClient implements UsersClient {
     );
 
     @Override
+    @Step("Создать пользователя: {username}")
     public UserJson createUser(String username, String password) {
         return xaTransactionTemplate.execute(() -> {
                     AuthUserEntity authUser = authUserEntity(username, password);
@@ -51,6 +55,7 @@ public class UserDbClient implements UsersClient {
     }
 
     @Override
+    @Step("Создать входящие приглашения для пользователя: {targetUser.username}, count={count}")
     public List<UserJson> createIncomeInvitations(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
         if (count > 0) {
@@ -75,6 +80,7 @@ public class UserDbClient implements UsersClient {
     }
 
     @Override
+    @Step("Создать исходящие приглашения для пользователя: {targetUser.username}, count={count}")
     public List<UserJson> createOutcomeInvitations(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
         if (count > 0) {
@@ -99,6 +105,7 @@ public class UserDbClient implements UsersClient {
     }
 
     @Override
+    @Step("Создать друзей для пользователя: {targetUser.username}, count={count}")
     public List<UserJson> createFriends(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
         if (count > 0) {

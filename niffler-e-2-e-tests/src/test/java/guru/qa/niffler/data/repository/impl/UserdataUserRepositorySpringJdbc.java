@@ -11,6 +11,8 @@ import guru.qa.niffler.data.tpl.DataSources;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository {
 
     private static final Config CFG = Config.getInstance();
@@ -25,16 +28,19 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository 
     private final UserdataUserDao userdataUserDao = new UserdataUserDaoSpringJdbc();
 
     @Override
+    @Nonnull
     public UserEntity create(UserEntity user) {
         return userdataUserDao.create(user);
     }
 
     @Override
+    @Nonnull
     public UserEntity update(UserEntity user) {
         return userdataUserDao.update(user);
     }
 
     @Override
+    @Nonnull
     public Optional<UserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return Optional.ofNullable(
@@ -51,6 +57,7 @@ public class UserdataUserRepositorySpringJdbc implements UserdataUserRepository 
     }
 
     @Override
+    @Nonnull
     public Optional<UserEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.userdataJdbcUrl()));
         return Optional.ofNullable(

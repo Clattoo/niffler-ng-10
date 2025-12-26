@@ -6,12 +6,14 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.extension.UserExtension;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
+import io.qameta.allure.Step;
 import lombok.SneakyThrows;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.List;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
+@ParametersAreNonnullByDefault
 public class UserApiClient implements UsersClient {
 
     private static final Config CFG = Config.getInstance();
@@ -42,6 +45,7 @@ public class UserApiClient implements UsersClient {
     private final UserdataApi userdataApi = userdataRetrofit.create(UserdataApi.class);
     private final AuthApi authApi = authRetrofit.create(AuthApi.class);
 
+    @Step("Создать пользователя {username}")
     @Override
     @SneakyThrows
     public UserJson createUser(String username, String password) {
@@ -64,6 +68,7 @@ public class UserApiClient implements UsersClient {
         return createdUser;
     }
 
+    @Step("Создать входящие приглашения для {targetUser.username}, количество: {count}")
     @Override
     public List<UserJson> createIncomeInvitations(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
@@ -77,6 +82,7 @@ public class UserApiClient implements UsersClient {
         return result;
     }
 
+    @Step("Создать исходящие приглашения для {targetUser.username}, количество: {count}")
     @Override
     public List<UserJson> createOutcomeInvitations(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
@@ -90,6 +96,7 @@ public class UserApiClient implements UsersClient {
         return List.of();
     }
 
+    @Step("Создать друзей для {targetUser.username}, количество: {count}")
     @Override
     public List<UserJson> createFriends(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();

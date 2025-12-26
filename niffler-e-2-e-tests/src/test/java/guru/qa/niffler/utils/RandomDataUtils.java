@@ -6,6 +6,11 @@ public class RandomDataUtils {
 
     private static final Faker faker = new Faker();
 
+    public static Long randomInteger() {
+        int digits = faker.number().randomDigitNotZero();
+        return faker.number().randomNumber(digits, false);
+    }
+
     public static String randomUsername() {
         return faker.name().username();
     }

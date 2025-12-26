@@ -6,6 +6,8 @@ import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 import guru.qa.niffler.model.CurrencyValues;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +19,7 @@ import java.util.UUID;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
-
+@ParametersAreNonnullByDefault
 public class SpendDaoJdbc implements SpendDao {
 
     private static final Config CFG = Config.getInstance();
@@ -55,6 +57,7 @@ public class SpendDaoJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public SpendEntity update(SpendEntity spend) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "UPDATE \"spend\" " +
@@ -81,6 +84,7 @@ public class SpendDaoJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public Optional<SpendEntity> findById(UUID id) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM spend WHERE id = ?"
@@ -113,6 +117,7 @@ public class SpendDaoJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public List<SpendEntity> findAllByUsername(String username) {
         List<SpendEntity> entityList = new ArrayList<>();
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
@@ -154,6 +159,7 @@ public class SpendDaoJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public List<SpendEntity> findAll() {
         List<SpendEntity> entityList = new ArrayList<>();
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
@@ -182,6 +188,7 @@ public class SpendDaoJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public Optional<SpendEntity> findByUsernameAndSpendDescription(String username, String description) {
         try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
                 "SELECT * FROM spend WHERE username = ? AND description = ?"

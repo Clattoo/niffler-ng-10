@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class SpendDaoSpringJdbc implements SpendDao {
 
     private static final Config CFG = Config.getInstance();
@@ -41,6 +44,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public SpendEntity update(SpendEntity spend) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         template.update(con -> {
@@ -68,6 +72,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public Optional<SpendEntity> findById(UUID id) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(
@@ -78,6 +83,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public List<SpendEntity> findAllByUsername(String username) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(
@@ -97,6 +103,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public List<SpendEntity> findAll() {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(
@@ -106,6 +113,7 @@ public class SpendDaoSpringJdbc implements SpendDao {
     }
 
     @Override
+    @Nonnull
     public Optional<SpendEntity> findByUsernameAndSpendDescription(String username, String description) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(

@@ -10,9 +10,12 @@ import guru.qa.niffler.data.entity.spend.SpendEntity;
 import guru.qa.niffler.data.repository.SpendRepository;
 import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class SpendRepositorySpringJdbc implements SpendRepository {
 
     private static final Config CFG = Config.getInstance();
@@ -25,7 +28,7 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
     );
 
     @Override
-    public SpendEntity create(SpendEntity spend) {
+    public @Nonnull SpendEntity create(SpendEntity spend) {
         return xaTxTemplate.execute(() -> {
             SpendEntity resultSpend = spendDao.create(spend);
             if (spend.getCategory() != null) {
@@ -37,31 +40,37 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
     }
 
     @Override
+    @Nonnull
     public SpendEntity update(SpendEntity spend) {
         return spendDao.update(spend);
     }
 
     @Override
+    @Nonnull
     public CategoryEntity createCategory(CategoryEntity category) {
         return categoryDao.create(category);
     }
 
     @Override
+    @Nonnull
     public Optional<CategoryEntity> findCategoryById(UUID id) {
         return categoryDao.findById(id);
     }
 
     @Override
+    @Nonnull
     public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String name) {
         return categoryDao.findCategoryByUsernameAndCategoryName(username, name);
     }
 
     @Override
+    @Nonnull
     public Optional<SpendEntity> findById(UUID id) {
         return spendDao.findById(id);
     }
 
     @Override
+    @Nonnull
     public Optional<SpendEntity> findByUsernameAndSpendDescription(String username, String description) {
         return spendDao.findByUsernameAndSpendDescription(username, description);
     }

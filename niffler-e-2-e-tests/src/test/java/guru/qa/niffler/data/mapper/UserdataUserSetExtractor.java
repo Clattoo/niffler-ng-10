@@ -7,6 +7,8 @@ import guru.qa.niffler.model.CurrencyValues;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -14,10 +16,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserSetExtractor implements ResultSetExtractor<UserEntity> {
     public static final UserdataUserSetExtractor instance = new UserdataUserSetExtractor();
 
     @Override
+    @Nonnull
     public UserEntity extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<UUID, UserEntity> users = new ConcurrentHashMap<>();
         UserEntity user = null;

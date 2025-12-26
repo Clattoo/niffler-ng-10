@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.annotation.Nonnull;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Objects;
@@ -20,7 +21,7 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
     private static final Config CFG = Config.getInstance();
 
     @Override
-    public AuthUserEntity create(AuthUserEntity user) {
+    public @Nonnull AuthUserEntity create(AuthUserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         KeyHolder kh = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -51,6 +52,7 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
     }
 
     @Override
+    @Nonnull
     public AuthUserEntity update(AuthUserEntity user) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         jdbcTemplate.update(
@@ -73,6 +75,7 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
         return user;
     }
 
+    @Nonnull
     @Override
     public Optional<AuthUserEntity> findByUsername(String username) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
@@ -94,7 +97,7 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
     }
 
     @Override
-    public Optional<AuthUserEntity> findById(UUID id) {
+    public @Nonnull Optional<AuthUserEntity> findById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
         return Optional.ofNullable(
                 jdbcTemplate.query(

@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.annotation.Nonnull;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -20,6 +21,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
 
     private static final Config CFG = Config.getInstance();
 
+    @Nonnull
     @Override
     public CategoryEntity create(CategoryEntity category) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
@@ -38,6 +40,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
+    @Nonnull
     public Optional<CategoryEntity> findById(UUID id) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(
@@ -48,6 +51,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
+    @Nonnull
     public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(
@@ -58,6 +62,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
+    @Nonnull
     public List<CategoryEntity> findAllByUsername(String username) {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(
@@ -77,6 +82,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     }
 
     @Override
+    @Nonnull
     public List<CategoryEntity> findAll() {
         JdbcTemplate template = new JdbcTemplate(DataSources.dataSource(CFG.spendJdbcUrl()));
         return template.query(

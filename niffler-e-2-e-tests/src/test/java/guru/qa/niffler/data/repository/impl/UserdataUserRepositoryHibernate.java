@@ -7,11 +7,14 @@ import guru.qa.niffler.data.repository.UserdataUserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.UUID;
 
 import static guru.qa.niffler.data.jpa.EntityManagers.em;
 
+@ParametersAreNonnullByDefault
 public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
 
     private static final Config CFG = Config.getInstance();
@@ -19,6 +22,7 @@ public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
     private final EntityManager entityManager = em(CFG.userdataJdbcUrl());
 
     @Override
+    @Nonnull
     public UserEntity create(UserEntity user) {
         entityManager.joinTransaction();
         entityManager.persist(user);
@@ -26,6 +30,7 @@ public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
     }
 
     @Override
+    @Nonnull
     public UserEntity update(UserEntity user) {
         entityManager.joinTransaction();
         entityManager.merge(user);
@@ -33,6 +38,7 @@ public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
     }
 
     @Override
+    @Nonnull
     public Optional<UserEntity> findByUsername(String username) {
         try {
             return Optional.ofNullable(
@@ -47,6 +53,7 @@ public class UserdataUserRepositoryHibernate implements UserdataUserRepository {
     }
 
     @Override
+    @Nonnull
     public Optional<UserEntity> findById(UUID id) {
         return Optional.ofNullable(
                 entityManager.find(UserEntity.class, id)
