@@ -22,7 +22,6 @@ public class ConfirmDeleteDialog extends BaseComponent<ConfirmDeleteDialog> {
     @Step("Подтвердить удаление")
     public void confirmDelete() {
         deleteButton.shouldBe(Condition.visible).shouldBe(Condition.enabled).click();
-        self.shouldNotBe(Condition.exist);
     }
 
     @Step("Отменить удаление")

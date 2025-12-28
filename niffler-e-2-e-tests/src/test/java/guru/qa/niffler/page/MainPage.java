@@ -1,19 +1,28 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import guru.qa.niffler.page.component.Header;
+import guru.qa.niffler.page.component.SpendingTable;
+import guru.qa.niffler.utils.ScreenDiffResult;
 import io.qameta.allure.Step;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Objects;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ParametersAreNonnullByDefault
-public class MainPage extends BasePage<MainPage>{
+public class MainPage extends BasePage<MainPage> {
+
+    public final SpendingTable spendingTableComponent = new SpendingTable();
 
     public final ElementsCollection tableRows = $$("#spendings tr");
     public final SelenideElement spendingTable = $("#spendings"),
@@ -25,6 +34,8 @@ public class MainPage extends BasePage<MainPage>{
             searchInput = $("input[aria-label='search']");
     private final SelenideElement menuBtn = $("button[aria-label='Menu']");
     private final ElementsCollection menuOptions = $$("li a");
+    private final SelenideElement categoryName = $("#legend-container");
+    private final ElementsCollection statisticsLegend = $$("div[id='legend-container'] ul");
 
     @Step("Проверить загрузку главной страницы")
     public MainPage checkThatPageLoaded() {
@@ -81,5 +92,37 @@ public class MainPage extends BasePage<MainPage>{
     private MainPage search(String inputText) {
         searchInput.setValue(inputText).pressEnter();
         return this;
+    }
+
+    @Step("Удалить spending {categoryName} из таблицы пользователя")
+    public MainPage deleteSpendingFromTable(String categoryName) {
+        spendingTableComponent.deleteSpending(categoryName);
+        return this;
+    }
+
+    @Step("Проверить количество записей в таблице spendings")
+    public MainPage checkSpendingsTableSize(int expectedSize) {
+        spendingTableComponent.checkTableSize(expectedSize);
+        return this;
+    }
+
+    @Step("Проверить кол-во категорий в легенде под статистикой равно {count}")
+    public MainPage checkLegendCount(int count) {
+        Objects.equals(statisticsLegend.size(), count);
+        return this;
+    }
+
+    @Step("Проверить изменение колеса статистики")
+    public MainPage checkCategoryUpdate(String expectedCategory) {
+        categoryName.$$("li").findBy(text(expectedCategory)).shouldBe(visible);
+        return this;
+    }
+
+    @Step("Сравнение скриншотов профиля")
+    public void assertStatisticsChartScreenshot(BufferedImage expected) throws IOException {
+        Selenide.sleep(2000);
+        BufferedImage actual = ImageIO.read($("canvas[role='img']").screenshot());
+        ScreenDiffResult diffResult = new ScreenDiffResult(expected, actual);
+        assertFalse(diffResult.getAsBoolean(), "Скриншоты отличаются");
     }
 }

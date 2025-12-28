@@ -27,7 +27,6 @@ public class SpendingTable extends BaseComponent<SpendingTable> {
     private final ElementsCollection spendingRows = self.$("tbody").$$("tr");
     private final SelenideElement prevPageButton = self.$("#page-prev");
     private final SelenideElement nextPageButton = self.$("#page-next");
-    private final SelenideElement checkboxButton = self.$("[data-testid='CheckBoxIcon']");
 
     public SpendingTable() {
         super($("#spendings"));
@@ -50,7 +49,7 @@ public class SpendingTable extends BaseComponent<SpendingTable> {
     @Step("Удалить spending: {description}")
     public SpendingTable deleteSpending(String description) {
         searchField.search(description);
-        checkboxButton.click();
+        selectCheckbox(description);
         deleteButton.click();
         confirmDeleteDialog.confirmDelete();
         return this;
@@ -60,6 +59,13 @@ public class SpendingTable extends BaseComponent<SpendingTable> {
     public SpendingTable searchSpendingByDescription(String description) {
         searchField.search(description);
         spendingRows.shouldHave(CollectionCondition.itemWithText(description));
+        return this;
+    }
+
+    @Step("Выбрать чекбокс spending: {description}")
+    public SpendingTable selectCheckbox(String description) {
+        SelenideElement row = spendingRows.findBy(text(description));
+        row.$("td.MuiTableCell-paddingCheckbox input[type='checkbox']").click();
         return this;
     }
 
