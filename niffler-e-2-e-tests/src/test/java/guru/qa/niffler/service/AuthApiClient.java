@@ -21,7 +21,7 @@ public final class AuthApiClient extends RestClient {
     private final AuthApi authApi;
 
     public AuthApiClient() {
-        super("https://auth.niffler-stage.qa.guru/", true);
+        super(CFG.authUrl(), true);
         this.authApi = create(AuthApi.class);
     }
 
