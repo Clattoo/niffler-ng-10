@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Optional;
 
 @ParametersAreNonnullByDefault
-public class SpendDbClient implements SpendClient {
+public final class SpendDbClient implements SpendClient {
 
     private static final Config CFG = Config.getInstance();
 
-    private final SpendRepository spendRepository = new SpendRepositoryHibernate();
+    private final SpendRepository spendRepository = SpendRepository.getInstance();
 
     private final XaTransactionTemplate xaTxTemplate = new XaTransactionTemplate(
             CFG.spendJdbcUrl()

@@ -5,12 +5,15 @@ import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.page.component.Header;
 import io.qameta.allure.Step;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
-public class MainPage {
+@ParametersAreNonnullByDefault
+public class MainPage extends BasePage<MainPage>{
 
     public final ElementsCollection tableRows = $$("#spendings tr");
     public final SelenideElement spendingTable = $("#spendings"),
@@ -20,7 +23,6 @@ public class MainPage {
             friendsLink = $("a[href='/people/friends']"),
             allPeopleLink = $("a[href='/people/all']"),
             searchInput = $("input[aria-label='search']");
-    private final Header header = new Header();
     private final SelenideElement menuBtn = $("button[aria-label='Menu']");
     private final ElementsCollection menuOptions = $$("li a");
 
@@ -69,6 +71,11 @@ public class MainPage {
         menuOptions.find(text("Friends")).click();
         allPeopleLink.click();
         return new FriendsPage();
+    }
+
+    @Step("Открыть страницу добавления нового spending")
+    public EditSpendingPage openAddSpendingPage() {
+        return header.addSpendingPage();
     }
 
     private MainPage search(String inputText) {

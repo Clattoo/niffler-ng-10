@@ -23,16 +23,14 @@ import static org.apache.hc.core5.http.HttpStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
-public class SpendApiClient implements SpendClient {
+public final class SpendApiClient extends RestClient implements SpendClient {
 
-    private static final Config CFG = Config.getInstance();
+    private final SpendApi spendApi;
 
-    private final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(CFG.spendUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
-
-    private final SpendApi spendApi = retrofit.create(SpendApi.class);
+    public SpendApiClient() {
+        super(CFG.spendUrl());
+        this.spendApi = create(SpendApi.class);
+    }
 
     @Override
     @Step("Найти spend по ID {id} пользователя {username}")

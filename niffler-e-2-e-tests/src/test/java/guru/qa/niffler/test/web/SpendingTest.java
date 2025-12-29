@@ -5,24 +5,18 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.extension.BrowserExtension;
-import guru.qa.niffler.jupiter.extension.TestMethodContextExtension;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.LoginPage;
-import guru.qa.niffler.page.component.Header;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith({
-        TestMethodContextExtension.class,
-        BrowserExtension.class
-})
+@ExtendWith(BrowserExtension.class)
 public class SpendingTest {
 
     private static final Config CFG = Config.getInstance();
-    private final Header header = new Header();
-    private final RandomDataUtils randomData = new RandomDataUtils();
+    private static final String successfulCreatedSpendingMessage = "New spending is successfully created";
 
     @User(
             spendings = @Spending(
@@ -70,13 +64,13 @@ public class SpendingTest {
 
         Selenide.open(CFG.frontUrl(), LoginPage.class)
                 .login(user.getUsername(), user.getTestData().password())
-                .checkThatPageLoaded();
-
-        header.addSpendingPage()
+                .checkThatPageLoaded()
+                .openAddSpendingPage()
                 .setAmountSpending(RandomDataUtils.randomInteger())
                 .setCategorySpending(RandomDataUtils.randomCategoryName())
                 .setNewSpendingDescription(newDescription)
                 .save()
+                .checkSnackbarText(successfulCreatedSpendingMessage)
                 .checkThatTableContains(newDescription);
     }
 }

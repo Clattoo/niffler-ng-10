@@ -12,15 +12,18 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
-public class Header {
+public class Header extends BaseComponent<Header> {
 
-    private final SelenideElement self = $("#root header");
     private final SelenideElement mainPageLink = self.$("a[href='/main']");
     private final SelenideElement profileButton = self.$("[data-testid='PersonIcon']");
     private final SelenideElement newSpendingButton = self.find("[href='/spending']");
 
     private final SelenideElement profileMenu = $("ul[role='menu']");
     private final ElementsCollection profileMenuTabs = profileMenu.$$("li[role='menuitem']");
+
+    public Header() {
+        super($("#root header"));
+    }
 
     @Step("Открыть меню профиля пользователя")
     private void openProfileMenu() {

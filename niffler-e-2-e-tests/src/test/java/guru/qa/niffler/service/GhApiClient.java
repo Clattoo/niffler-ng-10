@@ -13,17 +13,16 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import static java.util.Objects.requireNonNull;
 
 @ParametersAreNonnullByDefault
-public class GhApiClient {
+public final class GhApiClient extends RestClient {
 
-    private static final Config CFG = Config.getInstance();
     private static final String GH_TOKEN_ENV = "GITHUB_TOKEN";
 
-    private static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(CFG.githubUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
+    private final GhApi ghApi;
 
-    private final GhApi ghApi = retrofit.create(GhApi.class);
+    public GhApiClient() {
+        super(CFG.githubUrl());
+        this.ghApi = create(GhApi.class);
+    }
 
     @SneakyThrows
     @Step("Получить статус issue #{issueNumber} на GitHub")

@@ -10,11 +10,14 @@ import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
-public class ConfirmDeleteDialog {
-    private final SelenideElement self = $("div[role='dialog']");
+public class ConfirmDeleteDialog extends BaseComponent<ConfirmDeleteDialog> {
     private final SelenideElement title = self.$("h2");
     private final SelenideElement deleteButton = self.$(byText("Delete"));
     private final SelenideElement cancelButton = self.$(byText("Cancel"));
+
+    public ConfirmDeleteDialog() {
+        super($("div[role='dialog']"));
+    }
 
     @Step("Подтвердить удаление")
     public void confirmDelete() {

@@ -4,11 +4,14 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
-public class FriendsPage {
+@ParametersAreNonnullByDefault
+public class FriendsPage extends BasePage<FriendsPage> {
     public SelenideElement friendsTab = $("a[href='/people/friends']"),
             allPeopleTab = $("a[href='/people/all']"),
             emptylistOfFriends = $("#simple-tabpanel-friends"),
@@ -18,8 +21,7 @@ public class FriendsPage {
             friendRequestsTab = $("#requests"),
             myFriendsTable = $("#friends"),
             allPeopleList = $("#all"),
-            acceptFriendsInviteButton = $(""),
-            declineFriendsInviteButton = $("");
+            declineFriendsInviteConfirmationButton = $$("div[role='dialog'] button").findBy(text("Decline"));
     private final ElementsCollection allPeopleTableRows = $$("tbody#all > tr");
     private final ElementsCollection allPeopleRows = allPeopleList.$$("tbody tr");
     private final ElementsCollection friendRequestsRow = friendRequestsTab.$$("tbody tr");
@@ -69,19 +71,18 @@ public class FriendsPage {
     }
 
     @Step("Принять приглашение в друзья")
-    public String acceptFriendsInvitation() {
+    public FriendsPage acceptFriendsInvitation() {
         SelenideElement row = friendRequestsRow.filter(visible).first();
-        String username = usernameInRow(row).text();
         acceptButtonInRow(row).shouldBe(clickable).click();
 
-        return username;
+        return this;
     }
 
     @Step("Отклонить приглашение в друзья")
     public FriendsPage declineFriendsInviteButton() {
         SelenideElement row = friendRequestsRow.filter(visible).first();
         declineButtonInRow(row).shouldBe(clickable).click();
-
+        declineFriendsInviteConfirmationButton.click();
         return this;
     }
 

@@ -15,8 +15,7 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
-public class SpendingTable {
-    private final SelenideElement self = $("#spendings");
+public class SpendingTable extends BaseComponent<SpendingTable> {
 
     private final SearchField searchField = new SearchField();
     private final ConfirmDeleteDialog confirmDeleteDialog = new ConfirmDeleteDialog();
@@ -29,6 +28,10 @@ public class SpendingTable {
     private final SelenideElement prevPageButton = self.$("#page-prev");
     private final SelenideElement nextPageButton = self.$("#page-next");
     private final SelenideElement checkboxButton = self.$("[data-testid='CheckBoxIcon']");
+
+    public SpendingTable() {
+        super($("#spendings"));
+    }
 
     @Step("Выбрать период в таблице spending: {period}")
     public SpendingTable selectPeriod(DataFilterValues period) {

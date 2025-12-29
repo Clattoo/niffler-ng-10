@@ -25,15 +25,15 @@ import java.util.List;
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
 @ParametersAreNonnullByDefault
-public class UserDbClient implements UsersClient {
+public final class UserDbClient implements UsersClient {
 
     private static final String DEFAULT_PASSWORD = "12345";
 
     private static final Config CFG = Config.getInstance();
     private static final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-    private final AuthUserRepository authUserRepository = new AuthUserRepositoryHibernate();
-    private final UserdataUserRepository userdataUserRepository = new UserdataUserRepositoryHibernate();
+    private final AuthUserRepository authUserRepository = AuthUserRepository.getInstance();
+    private final UserdataUserRepository userdataUserRepository = UserdataUserRepository.getInstance();
 
     private final XaTransactionTemplate xaTransactionTemplate = new XaTransactionTemplate(
             CFG.authJdbcUrl(),

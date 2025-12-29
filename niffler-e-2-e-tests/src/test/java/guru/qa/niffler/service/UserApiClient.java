@@ -1,7 +1,9 @@
 package guru.qa.niffler.service;
 
+import com.google.common.base.Stopwatch;
 import guru.qa.niffler.api.AuthApi;
 import guru.qa.niffler.api.UserdataApi;
+import guru.qa.niffler.api.core.ThreadSafeCookieStore;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.extension.UserExtension;
 import guru.qa.niffler.model.CurrencyValues;
@@ -14,36 +16,26 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
 @ParametersAreNonnullByDefault
-public class UserApiClient implements UsersClient {
+public final class UserApiClient extends RestClient implements UsersClient {
 
-    private static final Config CFG = Config.getInstance();
-    private static final CookieManager cm = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+    private final UserdataApi userdataApi;
+    private final AuthApi authApi;
 
-    private final Retrofit userdataRetrofit = new Retrofit.Builder()
-            .baseUrl(CFG.userdataUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
-
-    private final Retrofit authRetrofit = new Retrofit.Builder()
-            .baseUrl(CFG.authUrl())
-            .addConverterFactory(JacksonConverterFactory.create())
-            .client(new OkHttpClient.Builder()
-                    .cookieJar(new JavaNetCookieJar(
-                            cm
-                    ))
-                    .build())
-            .build();
-
-    private final UserdataApi userdataApi = userdataRetrofit.create(UserdataApi.class);
-    private final AuthApi authApi = authRetrofit.create(AuthApi.class);
+    public UserApiClient() {
+        super(CFG.userdataUrl());
+        this.userdataApi = create(UserdataApi.class);
+        this.authApi = create(AuthApi.class);
+    }
 
     @Step("Создать пользователя {username}")
     @Override
@@ -54,18 +46,29 @@ public class UserApiClient implements UsersClient {
                 username,
                 password,
                 password,
-                cm.getCookieStore().getCookies()
-                        .stream()
-                        .filter(c -> c.getName().equals("XSRF-TOKEN"))
-                        .findFirst()
-                        .get()
-                        .getValue()
+                ThreadSafeCookieStore.INSTANCE.xsrfCookie()
         ).execute();
 
-        var createdUser = new UserJson();
-        createdUser.setUsername(username);
-        createdUser.setCurrency(CurrencyValues.RUB);
-        return createdUser;
+        Stopwatch sw = Stopwatch.createStarted();
+        long maxWaitTime = 10_000;
+
+        while (sw.elapsed(TimeUnit.MILLISECONDS) < maxWaitTime) {
+            try {
+                UserJson userJson = userdataApi.currentUser(username).execute().body();
+                if (userJson != null && userJson.getId() != null) {
+                    return userJson;
+                } else {
+                    Thread.sleep(100);
+                }
+            } catch (IOException e) {
+                // Временно недоступен сервер — продолжаем ожидание
+                System.out.println("Waiting for user creation due to temporary IO error: " + e.getMessage());
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        throw new AssertionError("User was not created in userdata within timeout");
     }
 
     @Step("Создать входящие приглашения для {targetUser.username}, количество: {count}")
