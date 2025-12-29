@@ -4,26 +4,22 @@ import com.google.common.base.Stopwatch;
 import guru.qa.niffler.api.AuthApi;
 import guru.qa.niffler.api.UserdataApi;
 import guru.qa.niffler.api.core.ThreadSafeCookieStore;
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.extension.UserExtension;
-import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
 import io.qameta.allure.Step;
 import lombok.SneakyThrows;
-import okhttp3.JavaNetCookieJar;
-import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
+import org.eclipse.jetty.http.HttpStatus;
+import retrofit2.Response;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
 public final class UserApiClient extends RestClient implements UsersClient {
@@ -112,5 +108,20 @@ public final class UserApiClient extends RestClient implements UsersClient {
             }
         }
         return result;
+    }
+
+    @Nonnull
+    public List<UserJson> getAll(String username) {
+        try {
+            Response<List<UserJson>> response = userdataApi.allUsers(username, null).execute();
+            assertEquals(
+                    HttpStatus.OK_200,
+                    response.code(),
+                    "Expected HTTP 200 from /internal/users/all"
+            );
+            return response.body();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
