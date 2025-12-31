@@ -3,13 +3,18 @@ package guru.qa.niffler.page;
 import com.codeborne.selenide.ClickOptions;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.utils.ScreenDiffResult;
 import io.qameta.allure.Step;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ParametersAreNonnullByDefault
 public class ProfilePage extends BasePage<ProfilePage> {
@@ -24,6 +29,7 @@ public class ProfilePage extends BasePage<ProfilePage> {
     private final SelenideElement addNewCategoryInput = $("#category");
     private final SelenideElement submitArchive = $x("//button[contains(@class,'MuiButtonBase-root') and normalize-space(text())='Archive']");
     private final SelenideElement submitUnArchive = $x("//button[contains(@class,'MuiButtonBase-root') and normalize-space(text())='Unarchive']");
+    private final SelenideElement uploadNewPictureInput = $("input[type='file']");
 
 
     private SelenideElement findCategory(String category) {
@@ -189,5 +195,19 @@ public class ProfilePage extends BasePage<ProfilePage> {
     @Step("Открыть страницу профиля")
     public ProfilePage openProfile() {
         return header.toProfilePage();
+    }
+
+    @Step("Загрузка изображения профиля")
+    public ProfilePage uploadProfileImage(String path) {
+        uploadNewPictureInput.uploadFromClasspath(path);
+        saveChangesButton.click();
+        return this;
+    }
+
+    @Step("Сравнение скриншотов профиля")
+    public void assertProfilePicScreenshot(BufferedImage expected) throws IOException {
+        BufferedImage actual = ImageIO.read($("img[class*='MuiAvatar-img'][class*='css-1hy9t21']").screenshot());
+        ScreenDiffResult diffResult = new ScreenDiffResult(expected, actual);
+        assertFalse(diffResult.getAsBoolean(), "Скриншоты отличаются");
     }
 }
