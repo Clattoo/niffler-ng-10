@@ -4,15 +4,19 @@ import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.model.DataFilterValues;
+import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.EditSpendingPage;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import java.util.List;
+
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
+import static guru.qa.niffler.condition.SpendConditions.spends;
 
 @ParametersAreNonnullByDefault
 public class SpendingTable extends BaseComponent<SpendingTable> {
@@ -82,6 +86,11 @@ public class SpendingTable extends BaseComponent<SpendingTable> {
     @Step("Проверить размер таблицы Spendings")
     public SpendingTable checkTableSize(int expectedSize) {
         spendingRows.shouldHave(size(expectedSize));
+        return this;
+    }
+
+    public SpendingTable checkSpendingTable(List<SpendJson> spendings) {
+        spendingRows.should(spends(spendings));
         return this;
     }
 }

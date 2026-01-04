@@ -3,14 +3,19 @@ package guru.qa.niffler.page;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.model.Bubble;
+import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.component.SpendingTable;
+import guru.qa.niffler.page.component.Statistics;
 import guru.qa.niffler.utils.ScreenDiffResult;
 import io.qameta.allure.Step;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 import static com.codeborne.selenide.Condition.text;
@@ -23,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class MainPage extends BasePage<MainPage> {
 
     public final SpendingTable spendingTableComponent = new SpendingTable();
+    public final Statistics statComponent = new Statistics();
 
     public final ElementsCollection tableRows = $$("#spendings tr");
     public final SelenideElement spendingTable = $("#spendings"),
@@ -124,5 +130,29 @@ public class MainPage extends BasePage<MainPage> {
         BufferedImage actual = ImageIO.read($("canvas[role='img']").screenshot());
         ScreenDiffResult diffResult = new ScreenDiffResult(expected, actual);
         assertFalse(diffResult.getAsBoolean(), "Скриншоты отличаются");
+    }
+
+    @Step("Сравнение списка категорий под статистикой: {bubbles}")
+    public MainPage assertStatBubble(Bubble... bubbles) {
+        statComponent.checkBubbles(bubbles);
+        return this;
+    }
+
+    @Step("Сравнение списка категорий под статистикой в любом порядке: {bubbles}")
+    public MainPage assertStatBubbleInAnyOrder(Bubble... bubbles) {
+        statComponent.checkBubblesInAnyOrder(bubbles);
+        return this;
+    }
+
+    @Step("Проверить наличие категорий под статистикой: {bubbles}")
+    public MainPage assertStatBubbleContains(Bubble... bubbles) {
+        statComponent.checkBubblesContains(bubbles);
+        return this;
+    }
+
+    @Step("Проверить корректность заполнения спендингов в таблице")
+    public @Nonnull MainPage assertSpendingTable(List<SpendJson> spendings) {
+        spendingTableComponent.checkSpendingTable(spendings);
+        return this;
     }
 }
