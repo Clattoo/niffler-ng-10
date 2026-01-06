@@ -1,24 +1,25 @@
 package guru.qa.niffler.service;
 
+import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import guru.qa.niffler.api.AuthApi;
 import guru.qa.niffler.api.core.ThreadSafeCookieStore;
-import guru.qa.niffler.config.Config;
 import io.qameta.allure.Step;
-import okhttp3.JavaNetCookieJar;
-import okhttp3.OkHttpClient;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 
 @ParametersAreNonnullByDefault
 public final class AuthApiClient extends RestClient {
 
     private final AuthApi authApi;
+
+    private static final String RESPONSE_TYPE = "code";
+    private static final String CLIENT_ID = "client";
+    private static final String SCOPE = "openid";
+    private static final String CODE_CHALLENGE_METHOD = "S256";
+    private static final String GRANT_TYPE = "authorization_code";
+    private static final String REDIRECT_URL = CFG.frontUrl() + "authorized";
 
     public AuthApiClient() {
         super(CFG.authUrl(), true);
@@ -34,5 +35,38 @@ public final class AuthApiClient extends RestClient {
                 password,
                 ThreadSafeCookieStore.INSTANCE.xsrfCookie()
         ).execute();
+    }
+
+    public void authorize(String codeChallenge) throws IOException {
+        authApi.authorize(
+                RESPONSE_TYPE,
+                CLIENT_ID,
+                SCOPE,
+                REDIRECT_URL,
+                codeChallenge,
+                CODE_CHALLENGE_METHOD
+        ).execute();
+    }
+
+    public String login(String username, String password) throws IOException {
+        var response = authApi.login(username,
+                        password,
+                        ThreadSafeCookieStore.INSTANCE.xsrfCookie())
+                .execute();
+        return StringUtils.substringAfter(response.raw().request().url().toString(), "code=");
+    }
+
+    public String token(String code, String codeVerifier) throws IOException {
+        var response = authApi.token(
+                code,
+                REDIRECT_URL,
+                CLIENT_ID,
+                codeVerifier,
+                GRANT_TYPE
+        ).execute();
+        if (response.body() != null) {
+            return response.body().path("id_token").asText();
+        }
+        return "";
     }
 }
