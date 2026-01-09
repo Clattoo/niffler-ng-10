@@ -49,6 +49,14 @@ public enum ThreadSafeCookieStore implements CookieStore {
                 .getValue();
     }
 
+    public String cookieValue(String cookieName) {
+        return getCookies().stream()
+                .filter(c -> c.getName().equals(cookieName))
+                .map(HttpCookie::getValue)
+                .findFirst()
+                .orElseThrow();
+    }
+
     private static CookieStore inMemoryCookieStore() {
         return new CookieManager(null, CookiePolicy.ACCEPT_ALL).getCookieStore();
     }
