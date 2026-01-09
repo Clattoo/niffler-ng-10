@@ -1,4 +1,4 @@
-package guru.qa.niffler.test.rest;
+package guru.qa.niffler.test.fake;
 
 import guru.qa.niffler.service.AuthApiClient;
 import guru.qa.niffler.utils.OauthUtils;
@@ -20,7 +20,7 @@ public class OauthTest {
 
         authApiClient.authorize(codeChallenge);
         String code = authApiClient.login("Mr_White", "white!Purple");
-        String idToken = authApiClient.token(code, codeVerifier);
+        String idToken = authApiClient.token(codeVerifier);
 
         assertNotNull(idToken, "id_token не должен быть null");
         Assertions.assertFalse(idToken.isEmpty(), "id_token не должен быть пустым");
