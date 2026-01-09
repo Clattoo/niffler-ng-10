@@ -2,12 +2,13 @@ package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,14 +27,13 @@ public class SpendingTest {
                     description = "Обучение Niffler 2.0 юбилейный поток!"
             )
     )
-
+    @ApiLogin
     @Test
     void spendingDescriptionShouldBeEditedByTableAction(UserJson user) {
         final String spendDescription = user.getTestData().spendings().getFirst().description();
         final String newDescription = "Обучение Niffler Next Generation";
 
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(user.getUsername(), user.getTestData().password())
+        Selenide.open(CFG.frontUrl(), MainPage.class)
                 .editSpending(spendDescription)
                 .setNewSpendingDescription(newDescription)
                 .save()
@@ -41,6 +41,7 @@ public class SpendingTest {
     }
 
     @Test
+    @ApiLogin
     @User(
             spendings = @Spending(
                     category = "Учеба",
@@ -51,19 +52,18 @@ public class SpendingTest {
     )
     public void checkSpendingShouldBeInHistory(UserJson userJson) {
         String spendingDescription = userJson.getTestData().spendings().getFirst().description();
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(userJson.getUsername(), userJson.getTestData().password())
+        Selenide.open(CFG.frontUrl(), MainPage.class)
                 .checkThatPageLoaded()
                 .checkThatTableContains(spendingDescription);
     }
 
     @Test
     @User
+    @ApiLogin
     public void addNewSpendingTest(UserJson user) {
         String newDescription = RandomDataUtils.randomSentence(1);
 
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(user.getUsername(), user.getTestData().password())
+        Selenide.open(CFG.frontUrl(), MainPage.class)
                 .checkThatPageLoaded()
                 .openAddSpendingPage()
                 .setAmountSpending(RandomDataUtils.randomInteger())
@@ -94,10 +94,10 @@ public class SpendingTest {
                             description = "Omega 12"
                     )}
     )
+    @ApiLogin
     @Test
-    public void statTableShouldContains(UserJson user){
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(user.getUsername(), user.getTestData().password())
+    public void statTableShouldContains(UserJson user) {
+        Selenide.open(CFG.frontUrl(), MainPage.class)
                 .assertSpendingTable(user.getTestData().spendings());
     }
 }
