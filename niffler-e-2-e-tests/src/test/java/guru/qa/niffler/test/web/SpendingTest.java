@@ -73,4 +73,31 @@ public class SpendingTest {
                 .checkSnackbarText(successfulCreatedSpendingMessage)
                 .checkThatTableContains(newDescription);
     }
+
+    @User(
+            spendings = {@Spending(
+                    category = "Test category 1",
+                    amount = 213,
+                    currency = CurrencyValues.RUB,
+                    description = "Test description 1"
+            ),
+                    @Spending(
+                            category = "Test category 2",
+                            amount = 3210,
+                            currency = CurrencyValues.RUB,
+                            description = "Test description 2"
+                    ),
+                    @Spending(
+                            category = "Alpha 123",
+                            amount = 375.1,
+                            currency = CurrencyValues.RUB,
+                            description = "Omega 12"
+                    )}
+    )
+    @Test
+    public void statTableShouldContains(UserJson user){
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .login(user.getUsername(), user.getTestData().password())
+                .assertSpendingTable(user.getTestData().spendings());
+    }
 }
