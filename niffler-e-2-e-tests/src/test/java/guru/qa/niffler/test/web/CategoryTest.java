@@ -2,11 +2,12 @@ package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
 import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.model.CategoryJson;
-import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.page.MainPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +24,10 @@ public class CategoryTest {
     )
 
     @Test
+    @ApiLogin
     @DisplayName("Архивация категории у пользователя")
     public void archiveCategoryTest(CategoryJson categoryJson) {
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(categoryJson.username(), "qwerty123")
+        Selenide.open(CFG.frontUrl(), MainPage.class)
                 .openProfile()
                 .archiveCategory(categoryJson.name())
                 .checkShowArchivedCategories()
@@ -40,11 +41,10 @@ public class CategoryTest {
             )
     )
     @Test
+    @ApiLogin
     @DisplayName("Разархивация категории у пользователя")
     public void UnarchiveCategoryTest(CategoryJson categoryJson) {
-
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(categoryJson.username(), "qwerty123")
+        Selenide.open(CFG.frontUrl(), MainPage.class)
                 .openProfile()
                 .checkShowArchivedCategories()
                 .unArchiveCategory(categoryJson.name())

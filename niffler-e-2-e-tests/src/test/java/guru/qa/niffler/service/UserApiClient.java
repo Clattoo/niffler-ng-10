@@ -124,4 +124,40 @@ public final class UserApiClient extends RestClient implements UsersClient {
             throw new RuntimeException(e);
         }
     }
+
+    @Nonnull
+    public List<UserJson> getFriends(String username, String searchQuery) {
+        try {
+            List<UserJson> all = userdataApi.friends(username, searchQuery).execute().body();
+            return all != null ? all : List.of();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Nonnull
+    public List<UserJson> getIncomeInvitations(String username) {
+        try {
+            List<UserJson> all = userdataApi.friends(username, null).execute().body();
+            if (all == null) return List.of();
+            return all.stream()
+                    .filter(u -> u.getFriendshipStatus() != null && u.getFriendshipStatus().name().equals("INVITE_RECEIVED"))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Nonnull
+    public List<UserJson> getOutcomeInvitations(String username) {
+        try {
+            List<UserJson> all = userdataApi.allUsers(username, null).execute().body();
+            if (all == null) return List.of();
+            return all.stream()
+                    .filter(u -> u.getFriendshipStatus() != null && u.getFriendshipStatus().name().equals("INVITE_SENT"))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
