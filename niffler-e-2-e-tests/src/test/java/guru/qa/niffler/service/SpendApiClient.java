@@ -1,14 +1,11 @@
 package guru.qa.niffler.service;
 
 import guru.qa.niffler.api.SpendApi;
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import io.qameta.allure.Step;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -144,5 +141,25 @@ public final class SpendApiClient extends RestClient implements SpendClient {
     public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName,
                                                                 String username) {
         throw new UnsupportedOperationException("Not implemented :(");
+    }
+
+    @Nonnull
+    public List<CategoryJson> getCategories(String username, boolean excludeArchived) {
+        try {
+            List<CategoryJson> categories = spendApi.getCategories(username, excludeArchived).execute().body();
+            return categories != null ? categories : List.of();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Nonnull
+    public List<SpendJson> getSpends(String username) {
+        try {
+            SpendJson[] spendsArray = spendApi.getSpends(username, null, null, null).execute().body();
+            return spendsArray != null ? List.of(spendsArray) : List.of();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

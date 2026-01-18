@@ -2,9 +2,10 @@ package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.jupiter.annotation.ApiLogin;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,11 +16,11 @@ public class ProfileTest {
 
     @User
     @Test
+    @ApiLogin
     @DisplayName("Редактирование имени профиля")
     void editProfileNameTest(UserJson user) {
         String newName = RandomDataUtils.randomName();
-        Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .login(user.getUsername(), user.getTestData().password())
+        Selenide.open(CFG.frontUrl(), MainPage.class)
                 .openProfile()
                 .setName(newName)
                 .clickSaveChanges()
