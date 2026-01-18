@@ -71,13 +71,16 @@ public final class AuthApiClient extends RestClient {
         return response.body().get("id_token").asText();
     }
 
-    @SneakyThrows
     public String loginUser(String username, String password) {
         final String codeVerifier = OauthUtils.generateCodeVerifier();
         final String codeChallenge = OauthUtils.generateCodeChallenge(codeVerifier);
 
-        authorize(codeChallenge);
-        login(username, password);
-        return token(codeVerifier);
+        try {
+            authorize(codeChallenge);
+            login(username, password);
+            return token(codeVerifier);
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при логине пользователя " + username, e);
+        }
     }
 }
