@@ -66,6 +66,37 @@ public abstract class RestClient {
                 .build();
     }
 
+    public RestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory, HttpLoggingInterceptor.Level level, @Nullable Interceptor... interceptors) {
+        final OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .followRedirects(followRedirect)
+                .cookieJar(
+                        new JavaNetCookieJar(
+                                new CookieManager(
+                                        ThreadSafeCookieStore.INSTANCE,
+                                        CookiePolicy.ACCEPT_ALL
+                                )
+                        )
+                );
+
+        if (interceptors != null) {
+            for (Interceptor interceptor : interceptors) {
+                builder.addNetworkInterceptor(interceptor);
+            }
+        }
+
+        builder.addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(level));
+        builder.addNetworkInterceptor(new AllureOkHttp3()
+                .setRequestTemplate("http-request.ftl")
+                .setResponseTemplate("http-response.ftl"));
+
+        this.okHttpClient = builder.build();
+        this.retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(converterFactory)
+                .client(okHttpClient)
+                .build();
+    }
+
     public <T> T create(Class<T> serviceClass) {
         return retrofit.create(serviceClass);
     }

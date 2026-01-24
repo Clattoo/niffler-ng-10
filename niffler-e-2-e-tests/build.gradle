@@ -170,3 +170,30 @@ tasks.register('printVersion') {
 tasks.named {it == "generateNifflerApolloSources"}.configureEach {
     dependsOn("downloadNifflerApolloSchemaFromIntrospection")
 }
+
+tasks.named("compileTestJava") {
+        dependsOn("xjcGeneration")
+}
+
+tasks.register('checkWsdl') {
+    def localFile = file("$projectDir/tmp/userdata.wsdl")
+    outputs.file(localFile)
+
+    doLast {
+        println "Downloading WSDL from $userdataWsdlUrl ..."
+        localFile.parentFile.mkdirs()
+        try {
+            new URL(userdataWsdlUrl).openStream().withStream { stream ->
+                localFile.withOutputStream { out -> stream.transferTo(out) }
+            }
+            println "✅ WSDL successfully downloaded to ${localFile.absolutePath}"
+        } catch (Exception e) {
+            println "❌ Failed to download WSDL: ${e.message}"
+            throw e
+        }
+    }
+}
+
+tasks.named("xjcGeneration") {
+    dependsOn("checkWsdl")
+}
