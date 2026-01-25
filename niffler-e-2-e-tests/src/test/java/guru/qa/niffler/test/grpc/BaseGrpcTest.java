@@ -2,6 +2,7 @@ package guru.qa.niffler.test.grpc;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.grpc.NifflerCurrencyServiceGrpc;
+import guru.qa.niffler.grpc.NifflerUserdataServiceGrpc;
 import guru.qa.niffler.jupiter.annotation.meta.GrpcTest;
 import guru.qa.niffler.utils.GrpcConsoleInterceptor;
 import io.grpc.Channel;
@@ -20,4 +21,14 @@ public class BaseGrpcTest {
 
     protected static final NifflerCurrencyServiceGrpc.NifflerCurrencyServiceBlockingStub blockingStub
             = NifflerCurrencyServiceGrpc.newBlockingStub(channel);
+
+    protected static final Channel userdataChannel = ManagedChannelBuilder
+            .forAddress(CFG.userdataGrpcAddress(), CFG.userdataGrpcPort())
+            .intercept(new GrpcConsoleInterceptor())
+            .usePlaintext()
+            .build();
+
+
+    protected static final NifflerUserdataServiceGrpc.NifflerUserdataServiceBlockingStub userdataServiceBlockingStub
+            = NifflerUserdataServiceGrpc.newBlockingStub(userdataChannel);
 }
