@@ -186,9 +186,9 @@ tasks.register('checkWsdl') {
             new URL(userdataWsdlUrl).openStream().withStream { stream ->
                 localFile.withOutputStream { out -> stream.transferTo(out) }
             }
-            println "✅ WSDL successfully downloaded to ${localFile.absolutePath}"
+            println "WSDL successfully downloaded to ${localFile.absolutePath}"
         } catch (Exception e) {
-            println "❌ Failed to download WSDL: ${e.message}"
+            println "Failed to download WSDL: ${e.message}"
             throw e
         }
     }
